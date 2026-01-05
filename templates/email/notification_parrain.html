@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Styles inline pour compatibilité email */
+        body { margin: 0; padding: 0; background-color: #D9D7D4; font-family: 'Helvetica', 'Arial', sans-serif; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #D9D7D4; padding-bottom: 40px; }
+        .content { background-color: #ffffff; margin: 0 auto; max-width: 600px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #D4AF37; }
+        
+        /* En-tête Doré */
+        .header { background: linear-gradient(135deg, #E5C365 0%, #D4AF37 100%); padding: 30px; text-align: center; }
+        .header h1 { margin: 0; color: #ffffff; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        
+        /* Corps */
+        .body-text { padding: 30px; color: #333333; line-height: 1.6; text-align: center; }
+        .h2-title { color: #00A8E8; font-size: 20px; margin-top: 0; }
+        
+        /* Carte Filleul */
+        .filleul-card { background-color: #F9F9F9; border-left: 5px solid #00A8E8; padding: 20px; margin: 20px 0; text-align: left; border-radius: 4px; }
+        .info-row { margin-bottom: 8px; font-size: 15px; }
+        .label { color: #888; font-size: 12px; text-transform: uppercase; display: block; }
+        .value { color: #333; font-weight: bold; }
+
+        /* Bouton */
+        .btn { display: inline-block; background-color: #00A8E8; color: #ffffff; text-decoration: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 6px rgba(0, 168, 232, 0.3); }
+        .btn:hover { background-color: #008CBF; }
+
+        /* Footer */
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <br>
+        <div class="content">
+            <div class="header">
+                <h1>IUT CONNECT+</h1>
+            </div>
+
+            <div class="body-text">
+                <p>Bonjour <strong>{{ parrain.nom_prenom }}</strong>,</p>
+                <h2 class="h2-title">✨ Vous avez un nouveau Filleul !</h2>
+                <p>Le système d'attribution vient de vous associer un étudiant de Niveau 1. Votre rôle est de le guider et de l'accompagner cette année.</p>
+
+                <div class="filleul-card">
+                    <div class="info-row">
+                        <span class="label">Nom de l'étudiant</span>
+                        <span class="value">{{ filleul.nom_prenom }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Matricule</span>
+                        <span class="value">{{ filleul.matricule }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Téléphone</span>
+                        <span class="value">{{ filleul.telephone }}</span>
+                    </div>
+                </div>
+
+                <a href="{{ site_url }}" class="btn">Accéder à mon Espace</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>IUT de Ngaoundéré •<br>Ceci est un message automatique, merci de ne pas répondre.</p>
+        </div>
+    </div>
+</body>
+</html>

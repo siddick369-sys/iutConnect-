@@ -1,0 +1,730 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Parrain | IUT Connect+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLES DE THÈMES (Circuit) --- */
+        :root {
+            /* Dark Mode (Défaut) */
+            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --glass-bg: rgba(20, 20, 40, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #aaa;
+            --gold-accent: #D4AF37;
+            --blue-accent: #00C2FF;
+            --circuit-line-opacity: 0.6;
+            --btn-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] {
+            /* Light Mode */
+            --bg-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --text-main: #2c3e50;
+            --text-muted: #555;
+            --gold-accent: #b8860b;
+            --blue-accent: #0077cc;
+            --circuit-line-opacity: 0.15;
+            --btn-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: var(--text-main);
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+        }
+
+        /* --- BACKGROUND ANIMATION (CIRCUIT) --- */
+        .circuit-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: -1; pointer-events: none;
+        }
+        .pcb-grid {
+            position: absolute; width: 100%; height: 100%;
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px; opacity: var(--circuit-line-opacity);
+        }
+        .circuit-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, var(--gold-accent), var(--blue-accent), transparent);
+            height: 2px; width: 150px; opacity: 0;
+            animation: circuitFlow 4s linear infinite;
+            box-shadow: 0 0 8px var(--blue-accent);
+        }
+        .circuit-line-v {
+            position: absolute;
+            background: linear-gradient(180deg, transparent, var(--blue-accent), var(--gold-accent), transparent);
+            width: 2px; height: 150px; opacity: 0;
+            animation: circuitFlowV 5s linear infinite;
+            box-shadow: 0 0 8px var(--gold-accent);
+        }
+        /* Positions aléatoires */
+        .l1 { top: 20%; left: -150px; animation-duration: 5s; }
+        .l2 { top: 60%; left: -150px; animation-duration: 7s; animation-delay: 1s; }
+        .l3 { top: 40%; right: -150px; animation-direction: reverse; animation-duration: 6s; }
+        .v1 { left: 20%; top: -150px; animation-duration: 6s; }
+        .v2 { left: 80%; top: -150px; animation-duration: 4s; animation-delay: 2s; }
+
+        @keyframes circuitFlow {
+            0% { transform: translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(calc(100vw + 150px)); opacity: 0; }
+        }
+        @keyframes circuitFlowV {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(calc(100vh + 150px)); opacity: 0; }
+        }
+
+        /* --- BOUTON THÈME --- */
+        .theme-switch {
+            position: absolute; top: 20px; right: 20px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            padding: 10px; border-radius: 50%; cursor: pointer;
+            backdrop-filter: blur(10px); z-index: 100;
+        }
+
+        /* --- CARTE PRINCIPALE --- */
+        .profile-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 100%; max-width: 400px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            text-align: center;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Header Dégradé Néon */
+        .card-header {
+            background: linear-gradient(135deg, rgba(0, 194, 255, 0.2), rgba(212, 175, 55, 0.2));
+            height: 120px; position: relative;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+
+        /* Avatar Tech */
+        .avatar-placeholder {
+            width: 110px; height: 110px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            border: 3px solid var(--gold-accent);
+            position: absolute;
+            left: 50%; transform: translateX(-50%);
+            bottom: -55px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; color: var(--blue-accent);
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0, 194, 255, 0.4);
+        }
+
+        .card-body { padding: 70px 25px 30px 25px; }
+
+        h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+        
+        .badge {
+            background: linear-gradient(90deg, var(--blue-accent), #0077FF);
+            color: white; padding: 5px 15px; border-radius: 20px;
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+            display: inline-block; margin-top: 10px; font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
+        }
+
+        /* Grille d'infos */
+        .info-grid {
+            margin-top: 30px; display: grid; gap: 15px; text-align: left;
+            background: var(--btn-bg); padding: 20px; border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .info-item span { display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .info-item p { margin: 2px 0 0; font-weight: 600; font-size: 1rem; color: var(--text-main); }
+
+        /* Boutons d'action */
+        .actions { display: flex; gap: 15px; margin-top: 30px; }
+
+        .btn {
+            flex: 1; padding: 12px; border: none; border-radius: 12px;
+            font-weight: 600; cursor: pointer; text-decoration: none;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s; color: white;
+        }
+
+        .btn-call {
+            background: linear-gradient(135deg, #444, #222);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2);
+        }
+
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+
+        /* État "Pas de Parrain" */
+        .no-parrain { padding: 40px; color: var(--text-muted); }
+        .icon-sad { font-size: 4rem; margin-bottom: 15px; display: block; filter: grayscale(1); }
+        
+        .back-link {
+            margin-top: 30px; color: var(--text-muted); text-decoration: none;
+            font-size: 0.9rem; transition: 0.3s;
+        }
+        .back-link:hover { color: var(--blue-accent); text-shadow: 0 0 10px var(--blue-accent); }
+
+        /* Animation Flottante */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        /* --- 1. L'OVERLAY (FOND FLOUTÉ) --- */
+    .glass-modal-overlay {
+        display: none; /* Caché par défaut */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 9999;
+        
+        /* C'EST ICI QUE LA MAGIE OPÈRE : */
+        background: rgba(0, 0, 0, 0.6); /* Assombrit le fond */
+        backdrop-filter: blur(20px);     /* Floute tout ce qui est derrière */
+        -webkit-backdrop-filter: blur(20px); /* Pour Safari */
+        
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Classe ajoutée par JS pour afficher */
+    .glass-modal-overlay.open {
+        display: flex;
+        opacity: 1;
+    }
+
+    /* --- 2. LA BOÎTE MODALE (DESIGN FUTURISTE) --- */
+    .glass-modal-box {
+        position: relative;
+        width: 90%;
+        max-width: 400px;
+        background: rgba(20, 20, 35, 0.75); /* Fond sombre semi-transparent */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 
+            0 20px 50px rgba(0, 0, 0, 0.5), /* Ombre profonde */
+            0 0 0 1px rgba(255, 255, 255, 0.05) inset; /* Bordure interne fine */
+        
+        backdrop-filter: blur(10px); /* Flou supplémentaire dans la boîte */
+        color: white;
+        transform: translateY(20px) scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+    }
+
+    .glass-modal-overlay.open .glass-modal-box {
+        transform: translateY(0) scale(1);
+    }
+
+    /* Ligne Néon Rouge en haut */
+    .neon-line {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 3px;
+        background: linear-gradient(90deg, transparent, #ff4757, transparent);
+        box-shadow: 0 0 15px #ff4757;
+    }
+
+    /* --- 3. TYPOGRAPHIE --- */
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, #fff, #ccc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .small-text {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        margin-top: 5px;
+        margin-bottom: 25px;
+    }
+
+    .futuristic-label {
+        display: block;
+        font-size: 0.8rem;
+        color: #00A8E8; /* Bleu tech */
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    /* --- 4. CHAMPS DE FORMULAIRE --- */
+    .field-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .input-glass {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 12px 15px;
+        color: white;
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+        box-sizing: border-box; /* Important pour ne pas dépasser */
+    }
+
+    .input-glass:focus {
+        border-color: #ff4757; /* Rouge alerte */
+        background: rgba(255, 71, 87, 0.05);
+        box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);
+    }
+
+    /* Style spécifique pour le Select (Optionnel: change la couleur des options sur fond blanc) */
+    select.input-glass option {
+        background: #1a1a1a;
+        color: white;
+    }
+
+    /* --- 5. BOUTONS --- */
+    .actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 12px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: 600;
+        flex: 1;
+    }
+    .btn-ghost:hover {
+        border-color: white;
+        color: white;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-danger-glow {
+        background: linear-gradient(135deg, #ff4757, #ff6b81);
+        border: none;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: 600;
+        flex: 2; /* Plus large que annuler */
+        box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-danger-glow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 71, 87, 0.5);
+    }
+.alert-box {
+    text-align: center;
+    max-width: 300px;
+    border: 1px solid var(--gold-accent); /* Bordure dorée pour le style */
+}
+
+.alert-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.alert-box h3 {
+    margin: 0 0 10px 0;
+    color: var(--gold-accent);
+}
+
+.alert-box p {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.btn-alert {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(90deg, var(--blue-accent), #0077FF);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
+}
+
+.btn-alert:hover {
+    transform: scale(1.05);
+}
+
+/* Animation d'apparition de l'icône */
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.gtranslate_wrapper {
+    position: fixed;
+    top: 10%;
+    /* En haut... */
+    left: 20%;
+    /* ...à droite */
+    z-index: 10000;
+    /* Très haut pour passer au-dessus de tout */
+}
+
+
+/* Optionnel : Rendre le sélecteur plus joli */
+
+.gtranslate_wrapper select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Fond sombre transparent */
+    color: white;
+    font-family: sans-serif;
+}
+
+
+/* --- AJUSTEMENT SPÉCIAL MOBILE --- */
+
+@media (max-width: 768px) {
+    .gtranslate_wrapper {
+        bottom: 15px;
+        /* Un peu plus haut sur mobile pour gagner de la place */
+        left: 15px;
+        /* Un peu plus au bord */
+    }
+    /* Optionnel : Rendre le sélecteur un peu plus petit sur mobile */
+    .gtranslate_wrapper select {
+        font-size: 12px;
+        padding: 3px;
+    }
+}
+
+#spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #0d0d1a 60%, #000);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.neon-spinner {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.neon-spinner .ring {
+    position: absolute;
+    border: 4px solid transparent;
+    border-top: 4px solid var(--orange);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    animation: spin 1.5s linear infinite;
+    box-shadow: 0 0 15px var(--orange);
+}
+
+.neon-spinner .ring:nth-child(2) {
+    border-top-color: var(--blue);
+    animation-delay: .5s;
+    box-shadow: 0 0 15px var(--blue);
+}
+
+.neon-spinner .ring:nth-child(3) {
+    border-top-color: #fff;
+    animation-delay: 1s;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+    </style>
+</head>
+<body>
+
+    <div class="circuit-container">
+        <div class="pcb-grid"></div>
+        <div class="circuit-line l1"></div>
+        <div class="circuit-line l2"></div>
+        <div class="circuit-line l3"></div>
+        <div class="circuit-line-v v1"></div>
+        <div class="circuit-line-v v2"></div>
+    </div>
+        <!-- Spinner -->
+    <div id="spinner">
+        <div class="neon-spinner">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+    </div>
+
+
+    <button class="theme-switch" id="themeToggle" title="Changer de thème">
+        <span class="theme-icon">🌙</span>
+    </button>
+
+    {% if parrain %}
+    <div class="profile-card">
+        <div class="card-header">
+            <div class="avatar-placeholder">
+                {{ parrain.nom_prenom|slice:":1" }}
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <h2>{{ parrain.nom_prenom }}</h2>
+            <div class="badge">Parrain • Niveau 2</div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span>Matricule</span>
+                    <p>{{ parrain.matricule }}</p>
+                </div>
+                <div class="info-item">
+                    <span>Mention</span>
+                    <p>{{ parrain.mention }}</p>
+                </div>
+                <div class="info-item">
+                    <span>Téléphone</span>
+                    <p style="letter-spacing: 1px;">{{ parrain.telephone }}</p>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="tel:{{ parrain.telephone }}" class="btn btn-call">
+                    📞 Appeler
+                </a>
+                <a href="https://wa.me/237{{ parrain.telephone }}" target="_blank" class="btn btn-whatsapp">
+                    💬 WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="profile-card">
+        <div class="card-header" style="background: rgba(255,255,255,0.1);"></div>
+        <div class="no-parrain">
+            <span class="icon-sad">⏳</span>
+            <h3>Recherche en cours...</h3>
+            <p>Notre algorithme recherche le parrain idéal pour toi.</p>
+            <p style="font-size: 0.8rem; margin-top: 10px;">Reviens un peu plus tard !</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'accueil' %}" class="back-link">⬅ Retour à l'accueil</a>
+    <div class="gtranslate_wrapper"></div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <button onclick="openSignalModal()" class="btn-text-danger">
+            ⚠️ Signaler un problème avec ce binôme
+        </button>
+    </div>
+
+<div id="signalModal" class="glass-modal-overlay">
+    <div class="glass-modal-box">
+        <div class="neon-line"></div>
+        
+        <div class="modal-header">
+            <h3>⚠️ Signalement</h3>
+            <p class="small-text">Canal sécurisé & confidentiel.</p>
+        </div>
+        
+        <form id="formSignalement" action="{% url 'signaler' %}">
+            {% csrf_token %}
+            
+            <div class="field-group">
+                <label class="futuristic-label">Type d'incident</label>
+                <div class="select-wrapper">
+                    <select name="type_probleme" class="input-glass">
+                        <option value="absent">📵 Binôme injoignable</option>
+                        <option value="inapte">⚡ Incompatibilité</option>
+                        <option value="harcelement">🛑 Comportement déplacé</option>
+                        <option value="autre">📝 Autre motif</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="futuristic-label">Rapport détaillé</label>
+                <textarea name="description" rows="4" class="input-glass" placeholder="Décrivez la situation ici..." required></textarea>
+            </div>
+
+            <div class="actions">
+                <button type="button" onclick="closeSignalModal()" class="btn-ghost">Annuler</button>
+                <button type="submit" class="btn-danger-glow">Transmettre</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="customAlertModal" class="glass-modal-overlay">
+    <div class="glass-modal-box alert-box">
+        <div id="alertIcon" class="alert-icon">✅</div>
+        <h3 id="alertTitle">Succès</h3>
+        <p id="alertMessage">Message...</p>
+        <button onclick="closeCustomAlert()" class="btn-alert">D'accord</button>
+    </div>
+</div>
+<script>
+        // --- 1. Gestion du Thème ---
+        const toggleBtn = document.getElementById('themeToggle');
+        const icon = toggleBtn.querySelector('.theme-icon');
+        const html = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            html.setAttribute('data-theme', savedTheme);
+            updateIcon(savedTheme);
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
+
+        function updateIcon(theme) {
+            icon.textContent = theme === 'light' ? '☀️' : '🌙';
+        }
+
+        // --- 2. Gestion Modal Signalement ---
+        function openSignalModal() { document.getElementById('signalModal').classList.add('open'); }
+        function closeSignalModal() { document.getElementById('signalModal').classList.remove('open'); }
+
+        // --- 3. Gestion Modal ALERTE (Nouveau) ---
+        function showCustomAlert(title, message, isSuccess) {
+            const modal = document.getElementById('customAlertModal');
+            const iconEl = document.getElementById('alertIcon');
+            const titleEl = document.getElementById('alertTitle');
+            const msgEl = document.getElementById('alertMessage');
+            const btnEl = modal.querySelector('.btn-alert');
+
+            // Contenu
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            
+            // Style selon le succès ou l'erreur
+            if (isSuccess) {
+                iconEl.innerHTML = "✅";
+                titleEl.style.color = "var(--gold-accent)"; // Doré si succès
+                btnEl.style.background = "linear-gradient(90deg, var(--blue-accent), #0077FF)";
+            } else {
+                iconEl.innerHTML = "⚠️";
+                titleEl.style.color = "#ff6b6b"; // Rouge si erreur
+                btnEl.style.background = "linear-gradient(90deg, #ff6b6b, #ee5253)";
+            }
+
+            modal.classList.add('open');
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlertModal').classList.remove('open');
+        }
+
+        // --- 4. Soumission Formulaire ---
+        document.getElementById('formSignalement').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            // Fermer le modal de signalement immédiatement pour l'UX
+            closeSignalModal();
+
+            try {
+                const response = await fetch(this.action, { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                // --- ICI ON UTILISE LE NOUVEAU MODAL AU LIEU DE ALERT() ---
+                if(data.success) {
+                    showCustomAlert("Envoyé !", "L'administration va traiter votre demande.", true);
+                    this.reset(); // Vide le formulaire
+                } else {
+                    showCustomAlert("Erreur", "Une erreur est survenue lors de l'envoi.", false);
+                }
+            } catch(err) {
+                console.error(err);
+                showCustomAlert("Connexion", "Impossible de contacter le serveur.", false);
+            }
+        });
+    </script>
+    
+    <script>
+        window.gtranslateSettings = {
+            "default_language": "fr", // Langue de base de ton site
+            "detect_browser_language": true, // Détecte la langue du visiteur auto
+            "languages": ["fr", "en"], // Les langues que tu veux proposer (ici juste FR et EN)
+            "wrapper_selector": ".gtranslate_wrapper",
+            "alt_flags": {
+                "en": "usa"
+            }, // Optionnel : utilise le drapeau USA pour l'anglais
+            "flag_style": "3d" // Style des drapeaux (2d ou 3d)
+        }
+                window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('spinner').style.display = 'none';
+    }, 1000);
+});
+
+    </script>
+
+</body>
+</html>

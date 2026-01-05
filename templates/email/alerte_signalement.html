@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Alerte Signalement</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #070a12; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 20px auto; background-color: #0b1225; border-radius: 16px; border: 1px solid #333; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        
+        <tr>
+            <td style="padding: 30px; text-align: center; background: linear-gradient(135deg, #1a1a1a 0%, #0b1225 100%); border-bottom: 2px solid #D4AF37;">
+                <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">Nouveau Signalement</h1>
+                <p style="color: #D4AF37; margin: 5px 0 0; font-size: 14px;">Action requise - IUT Connect+</p>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 30px; color: #e0e0e0;">
+                
+                <p style="font-size: 16px; line-height: 1.5; color: #aaa; margin-bottom: 20px;">
+                    Un utilisateur a soumis un signalement via la plateforme. Voici les détails du rapport :
+                </p>
+
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid #333;">
+                    <tr>
+                        <td style="padding: 15px; border-bottom: 1px solid #333;">
+                            <strong style="color: #5a67d8; text-transform: uppercase; font-size: 12px;">Émetteur</strong><br>
+                            <span style="color: white; font-size: 16px; font-weight: bold;">{{ matricule }}</span> <span style="color: #888;">(Niveau {{ niveau }})</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px; border-bottom: 1px solid #333;">
+                            <strong style="color: #ff7b54; text-transform: uppercase; font-size: 12px;">Type de Problème</strong><br>
+                            <span style="color: white; font-size: 16px;">{{ type_display }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px;">
+                            <strong style="color: #aaa; text-transform: uppercase; font-size: 12px;">Description</strong><br>
+                            <p style="color: white; font-size: 15px; line-height: 1.6; margin-top: 5px; font-style: italic;">
+                                "{{ description }}"
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <br><br>
+
+                <div style="text-align: center;">
+                    <a href="https://iut-connect.onrender.com/k9fx-gorgore-admin-iut" style="background: linear-gradient(90deg, #5a67d8, #0077FF); color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 5px 15px rgba(90, 103, 216, 0.4);">
+                        Gérer dans l'Admin 🛡️
+                    </a>
+                </div>
+                
+                <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+                    Ce mail a été envoyé automatiquement par le système de sécurité IUT Connect+.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

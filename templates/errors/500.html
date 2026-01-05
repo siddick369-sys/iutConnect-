@@ -1,0 +1,9 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Erreur Serveur{% endblock %}
+{% block code %}500{% endblock %}
+{% block message_title %}Moteur en surchauffe 🔥{% endblock %}
+{% block message_content %}
+    Nos serveurs rencontrent un problème technique interne.
+    Nos ingénieurs (ou les étudiants de GEL) sont sur le coup. Réessayez plus tard.
+{% endblock %}

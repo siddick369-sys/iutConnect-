@@ -1,0 +1,485 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Technique | IUT Connect+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/ElectricBorder.css' %}">
+    
+    <style>
+        /* --- VARIABLES & RESET --- */
+        :root {
+            --bg-dark: #070a12;
+            --gold: #D4AF37;
+            --blue: #00C2FF;
+            --text: #e0e0e0;
+            --card-bg: rgba(23, 25, 35, 0.7); /* Plus opaque pour lisibilité sur les étoiles */
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Montserrat', sans-serif;
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- HYPERSPEED CANVAS --- */
+        #hyperspeed {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.6; /* Réglé pour ne pas gêner la lecture */
+        }
+
+        /* --- TYPOGRAPHIE --- */
+        h1, h2, h3, h4 { margin: 0; }
+        
+        .section-title {
+            color: var(--gold);
+            font-size: 1.8rem;
+            margin: 60px 0 30px;
+            border-left: 4px solid var(--blue);
+            padding-left: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            background: radial-gradient(circle at center, transparent 0%, var(--bg-dark) 90%); /* Dégradé pour voir les étoiles */
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--gold), #fff, var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #aaa;
+            max-width: 600px;
+        }
+
+        /* --- CONTAINER GLOBAL --- */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        /* --- CARDS GÉNÉRIQUES (Glassmorphism) --- */
+        .tech-card, .challenge-box, .team-member-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .tech-card:hover, .team-member-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--blue);
+            box-shadow: 0 10px 30px rgba(0, 194, 255, 0.1);
+        }
+
+        /* --- GRILLES --- */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        /* --- STYLE DE LA TEAM --- */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Cartes un peu plus larges */
+            gap: 25px;
+        }
+
+        .team-member-card {
+            border-top: 3px solid var(--gold); /* Distinction visuelle */
+        }
+
+        .team-member-card h3 {
+            color: #fff;
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .team-role {
+            color: var(--blue);
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .team-member-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .team-member-card li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .team-member-card li::before {
+            content: '▹';
+            color: var(--gold);
+            position: absolute;
+            left: 0;
+        }
+
+        /* --- TAGS (Challenges) --- */
+        .challenge-box {
+            border-left: 4px solid var(--gold);
+            margin-bottom: 20px;
+            border-radius: 0 16px 16px 0;
+        }
+        .challenge-box h4 { color: #fff; margin-bottom: 10px; font-size: 1.2rem; }
+        .tag {
+            display: inline-block; padding: 4px 10px;
+            background: rgba(212, 175, 55, 0.15); color: var(--gold);
+            border-radius: 4px; font-size: 0.8rem; margin-right: 5px; font-weight: bold;
+        }
+
+        /* --- BOUTON CV --- */
+        .cta-container { text-align: center; margin-top: 80px; }
+        .btn-cv {
+            display: inline-block; padding: 15px 40px;
+            background: #fff; color: #000; font-weight: 900;
+            text-decoration: none; border-radius: 30px;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="hyperspeed"></canvas>
+
+    <section class="hero">
+        <p style="color: var(--blue); font-weight: bold; letter-spacing: 2px; margin-bottom: 10px;">PORTFOLIO TECHNIQUE</p>
+        <h1>Alexis Stéphane<br>Bidjebele</h1>
+        <p>
+            Étudiant en Réseaux & Télécoms - IUT Ngaoundéré.<br>
+            Lead Developer & Architecte Solution.
+        </p>
+    </section>
+
+    <div class="container">
+        
+        <h2 class="section-title">Stack Technique</h2>
+        <div class="tech-grid">
+            <div class="tech-card">
+                <h3>⚙️ Backend</h3>
+                <ul style="padding-left: 20px; color: #bbb;">
+                    <li>Python & Django 5</li>
+                    <li>PostgreSQL (Prod)</li>
+                    <li>Threading Asynchrone</li>
+                </ul>
+            </div>
+            <div class="tech-card">
+                <h3>🎨 Frontend</h3>
+                <ul style="padding-left: 20px; color: #bbb;">
+                    <li>Glassmorphism UI</li>
+                    <li>Canvas API (Anim)</li>
+                    <li>JavaScript ES6+</li>
+                </ul>
+            </div>
+            <div class="tech-card">
+                <h3>🛡️ Sécurité</h3>
+                <ul style="padding-left: 20px; color: #bbb;">
+                    <li>Regex Filtering</li>
+                    <li>Hachage PBKDF2</li>
+                    <li>Protection CSRF/XSS</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2 class="section-title">Architecture & Équipe Backend</h2>
+        <div class="team-grid">
+            
+            <div class="team-member-card">
+                <h3>ABBA Saidou</h3>
+                <span class="team-role">Architecture + Auth + Rôles</span>
+                <ul>
+                    <li>Mise en place de la structure MVC/MVT (Routes, Controllers, Middlewares).</li>
+                    <li>Système d'authentification complet (Inscription/Connexion via Sessions/JWT).</li>
+                    <li>Gestion des rôles (Admin, Parrain, Filleul) et contrôle d'accès sécurisé.</li>
+                    <li>Formatage des réponses JSON et gestion centralisée des erreurs.</li>
+                </ul>
+            </div>
+
+            <div class="team-member-card">
+                <h3>Ibrahima Bapetel</h3>
+                <span class="team-role">Base de Données + Modélisation</span>
+                <ul>
+                    <li>Conception MCD/MLD optimisée (Matricule en Clé Primaire).</li>
+                    <li>Création des tables (Étudiants, Parrainages, Logs) avec contraintes d'intégrité.</li>
+                    <li>Gestion de la cardinalité (1 Parrain → N Filleuls) pour compenser les effectifs.</li>
+                    <li>Écriture des scripts SQL, migrations et indexation pour la performance.</li>
+                </ul>
+            </div>
+
+            <div class="team-member-card">
+                <h3>Ania Mardochée</h3>
+                <span class="team-role">Algorithme d'Attribution + Admin</span>
+                <ul>
+                    <li>Algorithme d'assignation auto (Priorité : Même filière, Parrain moins chargé).</li>
+                    <li>Gestion de la concurrence (Verrouillage transactionnel SELECT FOR UPDATE).</li>
+                    <li>Endpoints Admin : Force Override, Statistiques par filière, taux de dispo.</li>
+                    <li>Système de logs pour tracer les actions sensibles (Assignation, Modifs).</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <h2 class="section-title">Défis & Solutions</h2>
+        
+        <div class="challenge-box">
+            <h4>1. Performance UX (Threading)</h4>
+            <div><span class="tag">Python</span> <span class="tag">Async</span></div>
+            <p style="color:#ccc; margin-top:10px;">L'envoi d'emails bloquait l'interface. Solution : Implémentation de threads pour déporter l'envoi SMTP en arrière-plan.</p>
+        </div>
+
+        <div class="challenge-box">
+            <h4>2. Filtrage Anti-Spam</h4>
+            <div><span class="tag">Regex</span> <span class="tag">Sécurité</span></div>
+            <p style="color:#ccc; margin-top:10px;">Algorithme de détection de "Charabia" et d'insultes via Regex complexes avant même l'envoi au serveur.</p>
+        </div>
+
+        <div class="challenge-box">
+            <h4>3. Optimisation Mobile</h4>
+            <div><span class="tag">JS</span> <span class="tag">Performance</span></div>
+            <p style="color:#ccc; margin-top:10px;">Désactivation automatique du moteur Canvas sur mobile (< 768px) pour préserver la batterie, remplacé par du CSS pur.</p>
+        </div>
+
+        <div class="cta-container">
+            <div class="electric-border" id="btnCV" style="display:inline-block;">
+                <div class="eb-canvas-container"><canvas class="eb-canvas"></canvas></div>
+                <div class="eb-layers">
+                    <div class="eb-glow-1"></div>
+                    <div class="eb-glow-2"></div>
+                    <div class="eb-background-glow"></div>
+                </div>
+                <div class="eb-content">
+                    <a href="{% static 'docs/CV_Alexis_Stephane.pdf' %}" class="btn-cv" download>
+                        📄 TÉLÉCHARGER MON CV
+                    </a>
+                </div>
+            </div>
+            <p style="margin-top: 20px; color: #666;">
+                Contact : <a href="mailto:siddick369@gmail.com" style="color: var(--gold);">siddick369@gmail.com</a>
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+    (function() {
+        const canvas = document.getElementById('hyperspeed');
+        const ctx = canvas.getContext('2d');
+        let width = window.innerWidth; let height = window.innerHeight;
+        canvas.width = width; canvas.height = height;
+
+        const STAR_COUNT = window.innerWidth < 768 ? 100 : 400; // Moins d'étoiles pour perf
+        const SPEED_BASE = 10;
+        const CENTER_X = width / 2; const CENTER_Y = height / 2;
+        const FOV = 300;
+
+        const COLORS = [{r:212,g:175,b:55}, {r:0,g:194,b:255}, {r:255,g:255,b:255}]; // Or, Bleu, Blanc
+        let stars = [];
+
+        class Star {
+            constructor() { this.init(true); }
+            init(first) {
+                this.x = (Math.random()-0.5)*width*3;
+                this.y = (Math.random()-0.5)*height*3;
+                this.z = first ? Math.random()*2000 : 2000;
+                this.speed = SPEED_BASE + Math.random()*5;
+                this.color = COLORS[Math.floor(Math.random()*COLORS.length)];
+                this.size = 1.2 * (0.8+Math.random()*0.4);
+            }
+            update() {
+                this.z -= this.speed;
+                if(this.z <= 1) this.init();
+            }
+            draw() {
+                const scale = FOV/this.z;
+                const x2d = CENTER_X + this.x*scale;
+                const y2d = CENTER_Y + this.y*scale;
+                const prevScale = FOV/(this.z+this.speed*3);
+                const prevX = CENTER_X + this.x*prevScale;
+                const prevY = CENTER_Y + this.y*prevScale;
+                
+                const opacity = Math.min(1, 2-(this.z/1000));
+                ctx.beginPath();
+                ctx.moveTo(prevX, prevY); ctx.lineTo(x2d, y2d);
+                ctx.strokeStyle = `rgba(${this.color.r},${this.color.g},${this.color.b},${opacity})`;
+                ctx.lineWidth = this.size * scale;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+        }
+
+        for(let i=0; i<STAR_COUNT; i++) stars.push(new Star());
+
+        function animate() {
+            ctx.fillStyle = 'rgba(7, 10, 18, 1)'; // Efface le canvas
+            ctx.fillRect(0, 0, width, height);
+            stars.forEach(s => { s.update(); s.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            width = window.innerWidth; height = window.innerHeight;
+            canvas.width = width; canvas.height = height;
+        });
+    })();
+    </script>
+
+    <script>
+    class ElectricBorderAnimation {
+        constructor(target, options = {}) {
+            if (window.innerWidth < 768) return; 
+            this.container = typeof target === 'string' ? document.getElementById(target) : target;
+            if (!this.container) return;
+            this.canvas = this.container.querySelector('.eb-canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.color = options.color || '#00D2FF';
+            this.speed = options.speed || 1;
+            this.chaos = options.chaos || 0.12;
+            this.borderRadius = options.borderRadius || 24;
+            this.container.style.setProperty('--electric-border-color', this.color);
+            this.time = 0; this.lastTime = 0;
+            this.octaves = 10; this.lacunarity = 1.6; this.gain = 0.7; this.frequency = 10; this.displacement = 60; this.borderOffset = 60;
+            this.resizeObserver = new ResizeObserver(() => this.updateSize());
+            this.resizeObserver.observe(this.container);
+            this.updateSize();
+            this.animate(0);
+        }
+        random(x) { return (Math.sin(x * 12.9898) * 43758.5453) % 1; }
+        noise2D(x, y) {
+            const i = Math.floor(x); const j = Math.floor(y);
+            const fx = x - i; const fy = y - j;
+            const a = this.random(i + j * 57); const b = this.random(i + 1 + j * 57);
+            const c = this.random(i + (j + 1) * 57); const d = this.random(i + 1 + (j + 1) * 57);
+            const ux = fx * fx * (3.0 - 2.0 * fx); const uy = fy * fy * (3.0 - 2.0 * fy);
+            return a * (1 - ux) * (1 - uy) + b * ux * (1 - uy) + c * (1 - ux) * uy + d * ux * uy;
+        }
+        octavedNoise(x, time, seed) {
+            let y = 0; let amplitude = this.chaos; let frequency = this.frequency;
+            for (let i = 0; i < this.octaves; i++) {
+                y += amplitude * this.noise2D(frequency * x + seed * 100, time * frequency * 0.3);
+                frequency *= this.lacunarity; amplitude *= this.gain;
+            }
+            return y;
+        }
+        getRoundedRectPoint(t, width, height, radius) {
+            const left = this.borderOffset; const top = this.borderOffset;
+            const straightW = width - 2 * radius; const straightH = height - 2 * radius;
+            const cornerArc = (Math.PI * radius) / 2;
+            const totalPerimeter = 2 * straightW + 2 * straightH + 4 * cornerArc;
+            const distance = t * totalPerimeter;
+            let acc = 0;
+            const getCorner = (cx, cy, r, sa, ea, p) => ({ x: cx + r * Math.cos(sa + p * ea), y: cy + r * Math.sin(sa + p * ea) });
+            if (distance <= acc + straightW) return { x: left + radius + (distance - acc), y: top }; acc += straightW;
+            if (distance <= acc + cornerArc) return getCorner(left + width - radius, top + radius, radius, -Math.PI/2, Math.PI/2, (distance - acc)/cornerArc); acc += cornerArc;
+            if (distance <= acc + straightH) return { x: left + width, y: top + radius + (distance - acc) }; acc += straightH;
+            if (distance <= acc + cornerArc) return getCorner(left + width - radius, top + height - radius, radius, 0, Math.PI/2, (distance - acc)/cornerArc); acc += cornerArc;
+            if (distance <= acc + straightW) return { x: left + width - radius - (distance - acc), y: top + height }; acc += straightW;
+            if (distance <= acc + cornerArc) return getCorner(left + radius, top + height - radius, Math.PI/2, Math.PI/2, (distance - acc)/cornerArc); acc += cornerArc;
+            if (distance <= acc + straightH) return { x: left, y: top + height - radius - (distance - acc) }; acc += straightH;
+            return getCorner(left + radius, top + radius, radius, Math.PI, Math.PI/2, (distance - acc)/cornerArc);
+        }
+        updateSize() {
+            const width = this.container.offsetWidth;
+            const height = this.container.offsetHeight;
+            this.width = width + this.borderOffset * 2;
+            this.height = height + this.borderOffset * 2;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            this.canvas.width = this.width * dpr;
+            this.canvas.height = this.height * dpr;
+            this.canvas.style.width = `${this.width}px`;
+            this.canvas.style.height = `${this.height}px`;
+            this.ctx.scale(dpr, dpr);
+        }
+        animate(currentTime) {
+            if (!this.lastTime) this.lastTime = currentTime;
+            const deltaTime = (currentTime - this.lastTime) / 1000;
+            this.time += deltaTime * this.speed;
+            this.lastTime = currentTime;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.scale(dpr, dpr);
+            this.ctx.strokeStyle = this.color;
+            this.ctx.lineWidth = 1.5;
+            this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
+            const cW = this.width - 2 * this.borderOffset;
+            const cH = this.height - 2 * this.borderOffset;
+            const r = Math.min(this.borderRadius, Math.min(cW, cH) / 2);
+            const perimeter = 2 * (cW + cH) + 2 * Math.PI * r;
+            const count = Math.floor(perimeter / 2);
+            this.ctx.beginPath();
+            for (let i = 0; i <= count; i++) {
+                const p = i / count;
+                const pt = this.getRoundedRectPoint(p, cW, cH, r);
+                const xN = this.octavedNoise(p * 8, this.time, 0);
+                const yN = this.octavedNoise(p * 8, this.time, 1);
+                const x = pt.x + xN * this.displacement;
+                const y = pt.y + yN * this.displacement;
+                if (i === 0) this.ctx.moveTo(x, y); else this.ctx.lineTo(x, y);
+            }
+            this.ctx.closePath();
+            this.ctx.stroke();
+            requestAnimationFrame((t) => this.animate(t));
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Applique l'effet électrique sur le bouton CV
+        new ElectricBorderAnimation('btnCV', {
+            color: '#D4AF37',
+            speed: 1.5,
+            borderRadius: 30
+        });
+    });
+    </script>
+</body>
+</html>
+            

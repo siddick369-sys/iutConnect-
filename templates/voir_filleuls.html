@@ -1,0 +1,1487 @@
+{% load static %}
+<!doctype html>
+<html lang="fr" data-theme="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer>
+    </script>
+
+    <title>Dashboard Parrain • IUT Connect+</title>
+
+
+    <style>
+         :root {
+            --orange: #ff7b54;
+            --blue: #5a67d8;
+            --bg: #070a12;
+            --bg2: #0b1225;
+            --text: rgba(255, 255, 255, .92);
+            --muted: rgba(255, 255, 255, .70);
+            --stroke: rgba(255, 255, 255, .14);
+            --surface: rgba(255, 255, 255, .06);
+            --shadow: 0 18px 60px rgba(0, 0, 0, .28);
+            --radius: 22px;
+            --chip: rgba(0, 0, 0, .14);
+            --btnBg: rgba(255, 255, 255, .10);
+        }
+        /* --- CONTAINER --- */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: none; /* Laisse passer les clics à travers le vide */
+}
+
+/* --- LE TOAST (Carte) --- */
+.glass-toast {
+    pointer-events: auto;
+    min-width: 300px;
+    max-width: 350px;
+    background: rgba(255, 255, 255, 0.1); /* Transparence */
+    backdrop-filter: blur(15px);          /* Effet de flou (Glass) */
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 4px solid; /* La couleur change selon le type */
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: #333;
+    font-family: 'Poppins', sans-serif; /* Ou ta police actuelle */
+    position: relative;
+    overflow: hidden;
+    
+    /* Animation d'entrée */
+    transform: translateX(120%);
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.glass-toast.show-toast {
+    transform: translateX(0%);
+}
+
+.glass-toast.hide-toast {
+    transform: translateX(130%); /* Sortie vers la droite */
+    opacity: 0;
+}
+
+/* --- COULEURS & VARIANTES --- */
+/* Succès (Vert Néon) */
+.toast-success {
+    border-left-color: #00E676;
+    background: linear-gradient(90deg, rgba(0, 230, 118, 0.1), rgba(255, 255, 255, 0.05));
+}
+.toast-success .toast-title { color: #00C853; }
+
+/* Danger/Erreur (Rouge/Orange Néon) */
+.toast-error, .toast-danger {
+    border-left-color: #FF3D00;
+    background: linear-gradient(90deg, rgba(255, 61, 0, 0.1), rgba(255, 255, 255, 0.05));
+}
+.toast-danger .toast-title { color: #D50000; }
+
+/* Info (Bleu Futuriste) */
+.toast-info {
+    border-left-color: #00B0FF;
+    background: linear-gradient(90deg, rgba(0, 176, 255, 0.1), rgba(255, 255, 255, 0.05));
+}
+.toast-info .toast-title { color: #0091EA; }
+
+/* Warning (Doré) */
+.toast-warning {
+    border-left-color: #FFD600;
+    background: linear-gradient(90deg, rgba(255, 214, 0, 0.1), rgba(255, 255, 255, 0.05));
+}
+.toast-warning .toast-title { color: #FBC02D; }
+
+/* --- CONTENU --- */
+.toast-icon { font-size: 1.2rem; }
+.toast-content { flex: 1; display: flex; flex-direction: column; }
+.toast-title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.toast-message { font-size: 0.85rem; color: #555; line-height: 1.3; }
+
+/* --- BOUTON FERMER --- */
+.toast-close {
+    background: none; border: none; font-size: 1.2rem; cursor: pointer;
+    color: #999; line-height: 1; padding: 0; margin: 0;
+    transition: color 0.3s;
+}
+.toast-close:hover { color: #333; }
+
+/* --- PROGRESS BAR (Timer) --- */
+.toast-progress {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba(255,255,255,0.3);
+}
+.toast-progress::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: currentColor; /* Prend la couleur du texte */
+    opacity: 0.5;
+    animation: progressLinear 5s linear forwards;
+}
+
+/* Couleur de la barre selon le type */
+.toast-success .toast-progress::before { background: #00E676; }
+.toast-danger .toast-progress::before { background: #FF3D00; }
+.toast-info .toast-progress::before { background: #00B0FF; }
+.toast-warning .toast-progress::before { background: #FFD600; }
+
+@keyframes progressLinear {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 480px) {
+    .toast-container {
+        right: 10px;
+        left: 10px; /* Centre sur mobile */
+        top: 10px;
+    }
+    .glass-toast {
+        min-width: auto;
+        width: 100%;
+    }
+}
+        
+        html[data-theme="light"] {
+            --bg: #fff7f2;
+            --bg2: #f3f7ff;
+            --text: rgba(12, 18, 40, .92);
+            --muted: rgba(12, 18, 40, .68);
+            --stroke: rgba(12, 18, 40, .14);
+            --surface: rgba(12, 18, 40, .06);
+            --shadow: 0 18px 60px rgba(0, 0, 0, .12);
+            --chip: rgba(255, 255, 255, .55);
+            --btnBg: rgba(255, 255, 255, .65);
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--text);
+            background: radial-gradient(1100px 700px at 20% 10%, var(--bg2), var(--bg));
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        /* Canvas blobs gluants */
+        
+        #blobBg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            /* ✅ ne bloque pas les clics */
+            opacity: .9;
+        }
+        
+        html[data-theme="light"] #blobBg {
+            opacity: 1;
+        }
+        
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        /* Topbar */
+        
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--stroke);
+            background: rgba(0, 0, 0, .22);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        html[data-theme="light"] .topbar {
+            background: rgba(255, 255, 255, .65);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orange), var(--blue));
+            box-shadow: 0 0 18px rgba(90, 103, 216, .45);
+        }
+        
+        .muted {
+            color: var(--muted)
+        }
+        
+        .small {
+            font-size: 12.5px
+        }
+        
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 16px;
+            border: 1px solid var(--stroke);
+            background: color-mix(in oklab, var(--surface) 92%, transparent);
+            color: var(--text);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+        }
+        
+        .link {
+            border: 1px solid var(--stroke);
+            padding: 10px 12px;
+            border-radius: 16px;
+            font-weight: 1000;
+            background: transparent;
+        }
+        /* Layout */
+        
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 18px 16px 56px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+        
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            border: 1px solid var(--stroke);
+            background: color-mix(in oklab, var(--surface) 92%, transparent);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+        /* Sidebar */
+        
+        .side {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .side h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 1000;
+        }
+        
+        .side p {
+            margin: 0;
+            color: var(--muted);
+            font-weight: 800;
+            line-height: 1.45;
+        }
+        
+        .pillRow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        
+        .pill {
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--stroke);
+            background: var(--chip);
+            font-weight: 1000;
+            font-size: 12px;
+        }
+        
+        .search {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        
+        .input {
+            flex: 1;
+            border: 1px solid var(--stroke);
+            background: color-mix(in oklab, var(--surface) 90%, transparent);
+            color: var(--text);
+            border-radius: 16px;
+            padding: 12px 12px;
+            outline: none;
+            font-weight: 900;
+        }
+        
+        .btn {
+            border: none;
+            padding: 12px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 1000;
+            color: #fff;
+            background: linear-gradient(135deg, var(--orange), var(--blue));
+            box-shadow: 0 14px 40px rgba(255, 123, 84, .18);
+            transition: transform .18s ease, filter .18s ease;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.04);
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--stroke);
+            box-shadow: none;
+        }
+        /* Main list */
+        
+        .mainHead {
+            padding: 16px;
+            border-bottom: 1px solid color-mix(in oklab, var(--stroke) 70%, transparent);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .mainHead h2 {
+            margin: 0;
+            font-weight: 1000;
+        }
+        
+        .mainHead .muted {
+            margin: 6px 0 0;
+            font-weight: 800;
+        }
+        
+        .countChip {
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--stroke);
+            background: var(--chip);
+            font-weight: 1000;
+            font-size: 12px;
+            height: fit-content;
+        }
+        
+        .list {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        
+        @media (max-width: 720px) {
+            .list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .fcard {
+            position: relative;
+            border: 1px solid var(--stroke);
+            border-radius: 20px;
+            background: color-mix(in oklab, var(--surface) 92%, transparent);
+            overflow: hidden;
+            transition: transform .2s ease, border-color .2s ease;
+            transform: translateZ(0);
+        }
+        
+        .fcard:hover {
+            transform: translateY(-3px);
+            border-color: color-mix(in oklab, var(--blue) 35%, var(--stroke));
+        }
+        
+        .cover {
+            height: 92px;
+            background: linear-gradient(135deg, rgba(255, 123, 84, .28), rgba(90, 103, 216, .28));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cover::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(260px 160px at 20% 30%, rgba(90, 103, 216, .35), transparent 65%), radial-gradient(260px 160px at 85% 35%, rgba(255, 123, 84, .35), transparent 65%);
+            opacity: .85;
+        }
+        
+        .fbody {
+            padding: 12px;
+            padding-top: 0;
+        }
+        
+        .rowTop {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-top: -28px;
+        }
+        
+        .avatar {
+            width: 62px;
+            height: 62px;
+            border-radius: 18px;
+            border: 2px solid rgba(255, 255, 255, .22);
+            background: rgba(0, 0, 0, .16);
+            object-fit: cover;
+            box-shadow: 0 14px 42px rgba(0, 0, 0, .26);
+        }
+        
+        html[data-theme="light"] .avatar {
+            border-color: rgba(12, 18, 40, .14);
+        }
+        
+        .metaSmall {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        
+        .badge {
+            font-size: 11.5px;
+            font-weight: 1000;
+            padding: 7px 9px;
+            border-radius: 999px;
+            border: 1px solid var(--stroke);
+            background: rgba(0, 0, 0, .10);
+            white-space: nowrap;
+        }
+        
+        html[data-theme="light"] .badge {
+            background: rgba(255, 255, 255, .55);
+        }
+        
+        .name {
+            margin: 10px 0 3px;
+            font-weight: 1000;
+        }
+        
+        .role {
+            margin: 0;
+            color: var(--muted);
+            font-weight: 800;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+        
+        .contactGrid {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+        
+        .citem {
+            border: 1px solid var(--stroke);
+            border-radius: 16px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: rgba(0, 0, 0, .10);
+        }
+        
+        html[data-theme="light"] .citem {
+            background: rgba(255, 255, 255, .55);
+        }
+        
+        .ciL {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        
+        .ico {
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            border: 1px solid var(--stroke);
+            background: color-mix(in oklab, var(--surface) 92%, transparent);
+            display: grid;
+            place-items: center;
+            font-size: 16px;
+            flex: 0 0 auto;
+        }
+        
+        .ciText {
+            min-width: 0;
+        }
+        
+        .ciTitle {
+            font-weight: 1000;
+            font-size: 12.5px;
+        }
+        
+        .ciVal {
+            font-weight: 900;
+            font-size: 12.5px;
+            color: var(--muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 230px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex: 0 0 auto;
+        }
+        
+        .miniBtn {
+            border: 1px solid var(--stroke);
+            background: transparent;
+            color: var(--text);
+            border-radius: 14px;
+            padding: 9px 10px;
+            cursor: pointer;
+            font-weight: 1000;
+            white-space: nowrap;
+        }
+        
+        .miniBtn.primary {
+            background: rgba(255, 255, 255, .10);
+        }
+        
+        html[data-theme="light"] .miniBtn.primary {
+            background: rgba(255, 255, 255, .75);
+        }
+        
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%) translateY(18px);
+            opacity: 0;
+            padding: 12px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--stroke);
+            background: color-mix(in oklab, var(--surface) 92%, rgba(0, 0, 0, .35));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--text);
+            font-weight: 1000;
+            transition: opacity .2s ease, transform .2s ease;
+            z-index: 999;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+
+         :root {
+            --orange: #ff7b54;
+            --blue: #5a67d8;
+            --bg: #070a12;
+            --bg2: #0b1225;
+            --text: rgba(255, 255, 255, .92);
+            --muted: rgba(255, 255, 255, .70);
+            --stroke: rgba(255, 255, 255, .14);
+            --surface: rgba(255, 255, 255, .06);
+            --shadow: 0 18px 60px rgba(0, 0, 0, .28);
+            --radius: 22px;
+            --chip: rgba(0, 0, 0, .14);
+            --btnBg: rgba(255, 255, 255, .10);
+        }
+
+        /* ... [TON CSS EXISTANT POUR TOAST, LAYOUT, ETC. NE CHANGE PAS] ... */
+        /* Je remets ici les blocs essentiels pour la démo, mais garde ton CSS d'avant pour le reste */
+
+        html[data-theme="light"] {
+            --bg: #fff7f2;
+            --bg2: #f3f7ff;
+            --text: rgba(12, 18, 40, .92);
+            --muted: rgba(12, 18, 40, .68);
+            --stroke: rgba(12, 18, 40, .14);
+            --surface: rgba(12, 18, 40, .06);
+            --shadow: 0 18px 60px rgba(0, 0, 0, .12);
+            --chip: rgba(255, 255, 255, .55);
+            --btnBg: rgba(255, 255, 255, .65);
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--text);
+            /* Fond par défaut (Desktop) */
+            background: radial-gradient(1100px 700px at 20% 10%, var(--bg2), var(--bg));
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative; /* Important pour le fix mobile */
+        }
+
+        /* Canvas blobs (Desktop uniquement) */
+        #blobBg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: .9;
+            transition: opacity 0.3s;
+        }
+
+        /* ... [LE RESTE DE TON CSS : Topbar, Cards, Sidebar...] ... */
+        
+        /* ========================================= */
+        /* === OPTIMISATION MOBILE (NOUVEAU) === */
+        /* ========================================= */
+        
+        @media (max-width: 768px) {
+            /* 1. On tue le Canvas lourd */
+            #blobBg {
+                display: none !important;
+            }
+
+            /* 2. On crée un fond CSS animé léger (Mesh Gradient) */
+            body {
+                background: var(--bg); /* Couleur de fond de base */
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                z-index: -2;
+                /* Dégradé diagonal complexe utilisant tes couleurs */
+                background: linear-gradient(
+                    125deg,
+                    var(--bg),
+                    rgba(90, 103, 216, 0.15), /* Ton Bleu (faible opacité) */
+                    var(--bg2),
+                    rgba(255, 123, 84, 0.15), /* Ton Orange (faible opacité) */
+                    var(--bg)
+                );
+                background-size: 300% 300%; /* On zoome pour voir les vagues */
+                animation: auroraWave 15s ease infinite; /* Animation lente */
+            }
+        }
+
+        /* Animation fluide des couleurs (GPU Friendly) */
+        @keyframes auroraWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Ajustement Light Mode Mobile */
+        html[data-theme="light"] body::before {
+            background: linear-gradient(
+                125deg,
+                var(--bg),
+                rgba(90, 103, 216, 0.1),
+                var(--bg2),
+                rgba(255, 123, 84, 0.1),
+                var(--bg)
+            );
+        }
+        
+#spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #0d0d1a 60%, #000);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.neon-spinner {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.neon-spinner .ring {
+    position: absolute;
+    border: 4px solid transparent;
+    border-top: 4px solid var(--orange);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    animation: spin 1.5s linear infinite;
+    box-shadow: 0 0 15px var(--orange);
+}
+
+.neon-spinner .ring:nth-child(2) {
+    border-top-color: var(--blue);
+    animation-delay: .5s;
+    box-shadow: 0 0 15px var(--blue);
+}
+
+.neon-spinner .ring:nth-child(3) {
+    border-top-color: #fff;
+    animation-delay: 1s;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+    
+    </style>
+</head>
+
+<body>
+    <canvas id="blobBg" aria-hidden="true"></canvas>
+        <!-- Spinner -->
+    <div id="spinner">
+        <div class="neon-spinner">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+    </div>
+
+
+    <header class="topbar">
+        <div class="brand">
+            <span class="dot"></span>
+            <strong>IUT Connect+</strong>
+            <span class="muted">• Dashboard Parrain</span>
+        </div>
+        <div class="top-actions">
+            <button class="icon-btn" id="themeToggle" type="button" aria-label="Changer de thème">
+                <span id="themeIcon">🌙</span>
+            </button>
+            <a class="link" href="{% url 'accueil' %}">Retour</a>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <div class="grid">
+            <!-- LEFT -->
+            <aside class="card side">
+                <div>
+                    <h2>Mes filleuls</h2>
+                    <p class="muted">Ici tu retrouves tous les profils de tes filleuls + leurs contacts.</p>
+                </div>
+
+                <div class="pillRow">
+                    <span class="pill">🧑‍🎓 Parrain : <span id="parrainName">{{ parrain.nom_prenom }}</span></span>
+                    <span class="pill">⭐ Total : <span id="totalCount">{{ total }}</span></span>
+                </div>
+
+                <div class="search">
+                    <input class="input" id="searchInput" type="search" placeholder="Rechercher (nom, matricule, filière…)" />
+                    <button class="btn btn-ghost" id="resetBtn" type="button">Reset</button>
+                </div>
+
+                <div class="pillRow">
+                    <span class="pill">💡 Astuce : clique “Copier” pour enregistrer vite un contact.</span>
+                </div>
+
+                <button class="btn" id="exportBtn" type="button">Exporter (JSON)</button>
+            </aside>
+
+            <!-- RIGHT -->
+            <section class="card">
+                <div class="mainHead">
+                    <div>
+                        <h2>Liste des filleuls</h2>
+                        <p class="muted small">Cartes avec fiche de contact complète</p>
+                    </div>
+                    <span class="countChip" id="visibleCount">{{ filleuls|length }} visibles</span>
+                </div>
+
+                <div class="list" id="list">
+                    {% for f in filleuls %}
+                    <article class="fcard">
+                        <div class="cover"></div>
+                        <div class="fbody">
+                            <div class="rowTop">
+                                <img class="avatar" src="{% static 'images/default-avatar.jpeg' %}" alt="">
+                                <div class="metaSmall">
+                                    <span class="badge">🎓 {{ f.mention }} - {{ f.parcours }}</span>
+                                    <span class="badge">🆔 {{ f.matricule }}</span>
+                                </div>
+                            </div>
+
+                            <div class="name">{{ f.nom_prenom }}</div>
+                            <p class="role">Étudiant de niveau {{ f.niveau }}</p>
+
+                            <div class="contactGrid">
+                                <div class="citem">
+                                    <div class="ciL">
+                                        <div class="ico">📞</div>
+                                        <div class="ciText">
+                                            <div class="ciTitle">Téléphone</div>
+                                            <div class="ciVal">{{ f.telephone }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="actions">
+                                        <button class="miniBtn primary" onclick="copyToClipboard('{{ f.telephone }}')">Copier</button>
+                                    </div>
+                                </div>
+
+                                <div class="citem">
+                                    <div class="ciL">
+                                        <div class="ico">💬</div>
+                                        <div class="ciText">
+                                            <div class="ciTitle">WhatsApp</div>
+                                            <div class="ciVal">{{ f.telephone }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="actions">
+                                        <a href="https://wa.me/{{ f.telephone|cut:' ' }}" target="_blank" class="miniBtn primary">Ouvrir</a>
+                                    </div>
+                                </div>
+
+                                <div class="citem">
+                                    <div class="ciL">
+                                        <div class="ico">📧</div>
+                                        <div class="ciText">
+                                            <div class="ciTitle">Email</div>
+                                            <div class="ciVal">{{ f.email }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="actions">
+                                        <button class="miniBtn primary" onclick="copyToClipboard('{{ f.email }}')">Copier</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    {% empty %}
+                    <p class="muted" style="padding:20px;">Aucun filleul pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="gtranslate_wrapper"></div>
+
+{% if messages %}
+<div class="toast-container">
+    {% for message in messages %}
+    <div class="glass-toast toast-{{ message.tags }} show-toast">
+        <div class="toast-icon">
+            {% if message.tags == 'success' %}✨
+            {% elif message.tags == 'error' or message.tags == 'danger' %}⚠️
+            {% elif message.tags == 'warning' %}⚡
+            {% else %}ℹ️{% endif %}
+        </div>
+        <div class="toast-content">
+            <span class="toast-title">
+                {% if message.tags == 'success' %}Succès
+                {% elif message.tags == 'error' or message.tags == 'danger' %}Erreur
+                {% elif message.tags == 'warning' %}Attention
+                {% else %}Info{% endif %}
+            </span>
+            <span class="toast-message">{{ message }}</span>
+        </div>
+        <button class="toast-close" onclick="closeToast(this)">×</button>
+        <div class="toast-progress"></div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<div style="text-align: center; margin-top: 50px;">
+    <button onclick="openSignalModal()" class="btn">
+        ⚠️ Signaler un problème avec ce binôme
+    </button>
+</div>
+<div id="signalModal" class="glass-modal-overlay">
+    <div class="glass-modal-box">
+        <div class="neon-line"></div>
+        
+        <div class="modal-header">
+            <h3>⚠️ Signalement</h3>
+            <p class="small-text">Canal sécurisé & confidentiel.</p>
+        </div>
+        
+        <form id="formSignalement" action="{% url 'signaler' %}">
+            {% csrf_token %}
+            
+            <div class="field-group">
+                <label class="futuristic-label">Type d'incident</label>
+                <div class="select-wrapper">
+                    <select name="type_probleme" class="input-glass">
+                        <option value="absent">📵 Binôme injoignable</option>
+                        <option value="inapte">⚡ Incompatibilité</option>
+                        <option value="harcelement">🛑 Comportement déplacé</option>
+                        <option value="autre">📝 Autre motif</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="futuristic-label">Rapport détaillé</label>
+                <textarea name="description" rows="4" class="input-glass" placeholder="Décrivez la situation ici..." required></textarea>
+            </div>
+
+            <div class="actions">
+                <button type="button" onclick="closeSignalModal()" class="btn-ghost">Annuler</button>
+                <button type="submit" class="btn-danger-glow">Transmettre</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* --- 1. L'OVERLAY (FOND FLOUTÉ) --- */
+    .glass-modal-overlay {
+        display: none; /* Caché par défaut */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 9999;
+        
+        /* C'EST ICI QUE LA MAGIE OPÈRE : */
+        background: rgba(0, 0, 0, 0.6); /* Assombrit le fond */
+        backdrop-filter: blur(20px);     /* Floute tout ce qui est derrière */
+        -webkit-backdrop-filter: blur(20px); /* Pour Safari */
+        
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Classe ajoutée par JS pour afficher */
+    .glass-modal-overlay.open {
+        display: flex;
+        opacity: 1;
+    }
+
+    /* --- 2. LA BOÎTE MODALE (DESIGN FUTURISTE) --- */
+    .glass-modal-box {
+        position: relative;
+        width: 90%;
+        max-width: 400px;
+        background: rgba(20, 20, 35, 0.75); /* Fond sombre semi-transparent */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 
+            0 20px 50px rgba(0, 0, 0, 0.5), /* Ombre profonde */
+            0 0 0 1px rgba(255, 255, 255, 0.05) inset; /* Bordure interne fine */
+        
+        backdrop-filter: blur(10px); /* Flou supplémentaire dans la boîte */
+        color: white;
+        transform: translateY(20px) scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+    }
+
+    .glass-modal-overlay.open .glass-modal-box {
+        transform: translateY(0) scale(1);
+    }
+
+    /* Ligne Néon Rouge en haut */
+    .neon-line {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 3px;
+        background: linear-gradient(90deg, transparent, #ff4757, transparent);
+        box-shadow: 0 0 15px #ff4757;
+    }
+
+    /* --- 3. TYPOGRAPHIE --- */
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, #fff, #ccc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .small-text {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        margin-top: 5px;
+        margin-bottom: 25px;
+    }
+
+    .futuristic-label {
+        display: block;
+        font-size: 0.8rem;
+        color: #00A8E8; /* Bleu tech */
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    /* --- 4. CHAMPS DE FORMULAIRE --- */
+    .field-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .input-glass {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 12px 15px;
+        color: white;
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+        box-sizing: border-box; /* Important pour ne pas dépasser */
+    }
+
+    .input-glass:focus {
+        border-color: #ff4757; /* Rouge alerte */
+        background: rgba(255, 71, 87, 0.05);
+        box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);
+    }
+
+    /* Style spécifique pour le Select (Optionnel: change la couleur des options sur fond blanc) */
+    select.input-glass option {
+        background: #1a1a1a;
+        color: white;
+    }
+
+    /* --- 5. BOUTONS --- */
+    .actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 12px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: 600;
+        flex: 1;
+    }
+    .btn-ghost:hover {
+        border-color: white;
+        color: white;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-danger-glow {
+        background: linear-gradient(135deg, #ff4757, #ff6b81);
+        border: none;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: 600;
+        flex: 2; /* Plus large que annuler */
+        box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-danger-glow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 71, 87, 0.5);
+    }
+</style>
+
+
+<script>
+            window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('spinner').style.display = 'none';
+    }, 1000);
+});
+
+    function openSignalModal() { document.getElementById('signalModal').classList.add('open'); }
+    function closeSignalModal() { document.getElementById('signalModal').classList.remove('open'); }
+
+    // Gestion AJAX du formulaire
+    document.getElementById('formSignalement').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch(this.action, { method: 'POST', body: formData });
+            const data = await response.json();
+            
+            closeSignalModal();
+            if(data.success) {
+                showGlassModal("Signalement reçu. Nous allons traiter votre demande.", true);
+            } else {
+                showGlassModal("Erreur lors de l'envoi.");
+            }
+        } catch(err) {
+            console.error(err);
+        }
+    });
+
+</script>
+    <script>
+        /* ===================== THEME ===================== */
+        (function() {
+            var html = document.documentElement;
+            var toggle = document.getElementById("themeToggle");
+            var icon = document.getElementById("themeIcon");
+
+            function setTheme(t) {
+                html.setAttribute("data-theme", t);
+                localStorage.setItem("theme", t);
+                if (icon) icon.textContent = (t === "light") ? "☀️" : "🌙";
+                // update blob gradient on theme change
+                if (window.__blobBg && window.__blobBg.setTheme) window.__blobBg.setTheme(t);
+            }
+
+            setTheme(localStorage.getItem("theme") || "dark");
+
+            if (toggle) {
+                toggle.addEventListener("click", function() {
+                    var cur = html.getAttribute("data-theme");
+                    setTheme(cur === "dark" ? "light" : "dark");
+                });
+            }
+        })();
+        
+
+        /* ===================== BLOB BG (metaballs gluants) ===================== */
+        (function initBlobBg() {
+            var canvas = document.getElementById("blobBg");
+            if (!canvas) return;
+
+            var ctx = canvas.getContext("2d", {
+                alpha: true,
+                desynchronized: true
+            });
+            var w = 0,
+                h = 0;
+            var blobs = [];
+            var dpr = Math.min(window.devicePixelRatio || 1, 1.8); // cap for perf
+
+            var isMobile = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
+            var count = isMobile ? 5 : 8;
+
+            function resize() {
+                w = canvas.clientWidth || innerWidth;
+                h = canvas.clientHeight || innerHeight;
+
+                canvas.width = Math.floor(w * dpr);
+                canvas.height = Math.floor(h * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            window.addEventListener("resize", resize, {
+                passive: true
+            });
+            resize();
+
+            function rand(a, b) {
+                return a + Math.random() * (b - a);
+            }
+
+            function seed() {
+                blobs = [];
+                for (var i = 0; i < count; i++) {
+                    var r = isMobile ? rand(60, 110) : rand(90, 160);
+                    blobs.push({
+                        x: rand(r, w - r),
+                        y: rand(r, h - r),
+                        vx: rand(-0.35, 0.35),
+                        vy: rand(-0.30, 0.30),
+                        r: r,
+                        drift: rand(0.6, 1.6)
+                    });
+                }
+            }
+            seed();
+
+            function getTheme() {
+                return document.documentElement.getAttribute("data-theme") || "dark";
+            }
+
+            // gradient depends on theme
+            function gradient() {
+                var g = ctx.createRadialGradient(w * 0.30, h * 0.25, 40, w * 0.55, h * 0.55, Math.max(w, h) * 0.8);
+                if (getTheme() === "light") {
+                    g.addColorStop(0, "rgba(255,123,84,.38)");
+                    g.addColorStop(0.55, "rgba(90,103,216,.30)");
+                    g.addColorStop(1, "rgba(47,211,255,.22)");
+                } else {
+                    g.addColorStop(0, "rgba(255,123,84,.45)");
+                    g.addColorStop(0.55, "rgba(90,103,216,.38)");
+                    g.addColorStop(1, "rgba(47,211,255,.26)");
+                }
+                return g;
+            }
+
+            function step(now) {
+                // clear
+                ctx.clearRect(0, 0, w, h);
+
+                // metaballs look: blur + contrast => fusion/défuse naturel
+                ctx.save();
+                ctx.filter = isMobile ? "blur(16px) contrast(18)" : "blur(22px) contrast(22)";
+                ctx.globalCompositeOperation = "source-over";
+                ctx.fillStyle = "rgba(255,255,255,1)";
+
+                var t = now * 0.001;
+
+                // update + soft forces for "meet then separate"
+                for (var i = 0; i < blobs.length; i++) {
+                    var b = blobs[i];
+
+                    // organic drift
+                    b.vx += Math.sin(t * b.drift + b.y * 0.002) * 0.0022;
+                    b.vy += Math.cos(t * b.drift + b.x * 0.002) * 0.0020;
+
+                    // pairwise separation if too overlapped (prevents permanent sticking)
+                    for (var j = i + 1; j < blobs.length; j++) {
+                        var o = blobs[j];
+                        var dx = b.x - o.x;
+                        var dy = b.y - o.y;
+                        var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        var target = (b.r + o.r) * 0.86;
+
+                        if (dist < target) {
+                            // push away gently
+                            var push = (target - dist) / target;
+                            var fx = (dx / dist) * push * 0.09;
+                            var fy = (dy / dist) * push * 0.09;
+                            b.vx += fx;
+                            b.vy += fy;
+                            o.vx -= fx;
+                            o.vy -= fy;
+                        }
+                    }
+
+                    // integrate
+                    b.x += b.vx * 2.0;
+                    b.y += b.vy * 2.0;
+
+                    // soft bounds
+                    if (b.x < -b.r * 0.2) {
+                        b.x = -b.r * 0.2;
+                        b.vx *= -0.9;
+                    }
+                    if (b.x > w + b.r * 0.2) {
+                        b.x = w + b.r * 0.2;
+                        b.vx *= -0.9;
+                    }
+                    if (b.y < -b.r * 0.2) {
+                        b.y = -b.r * 0.2;
+                        b.vy *= -0.9;
+                    }
+                    if (b.y > h + b.r * 0.2) {
+                        b.y = h + b.r * 0.2;
+                        b.vy *= -0.9;
+                    }
+
+                    // draw circle (metaball)
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // colorize: fill gradient inside the metaball alpha
+                ctx.filter = "none";
+                ctx.globalCompositeOperation = "source-in";
+                ctx.fillStyle = gradient();
+                ctx.fillRect(0, 0, w, h);
+
+                // subtle overall fade
+                ctx.globalCompositeOperation = "source-over";
+                ctx.fillStyle = (getTheme() === "light") ? "rgba(255,255,255,.10)" : "rgba(0,0,0,.12)";
+                ctx.fillRect(0, 0, w, h);
+
+                ctx.restore();
+
+                requestAnimationFrame(step);
+            }
+
+            // pause when hidden (perf)
+            function setRunning(run) {
+                if (run) requestAnimationFrame(step);
+            }
+
+            document.addEventListener("visibilitychange", function() {
+                if (document.hidden) {
+                    // nothing: next frame won't be scheduled if tab stops (browser)
+                } else {
+                    requestAnimationFrame(step);
+                }
+            });
+
+            // expose theme update hook
+            window.__blobBg = {
+                setTheme: function() { /* gradient reads theme live */ }
+            };
+
+            requestAnimationFrame(step);
+        })();
+
+        window.gtranslateSettings = {
+            "default_language": "fr", // Langue de base de ton site
+            "detect_browser_language": true, // Détecte la langue du visiteur auto
+            "languages": ["fr", "en"], // Les langues que tu veux proposer (ici juste FR et EN)
+            "wrapper_selector": ".gtranslate_wrapper",
+            "alt_flags": {
+                "en": "usa"
+            }, // Optionnel : utilise le drapeau USA pour l'anglais
+            "flag_style": "3d" // Style des drapeaux (2d ou 3d)
+        }
+    </script>
+    <script>
+            /* === Filtrage et export JSON === */
+        const searchInput = document.getElementById("searchInput");
+        const resetBtn = document.getElementById("resetBtn");
+        const exportBtn = document.getElementById("exportBtn");
+        const cards = document.querySelectorAll(".fcard");
+        const visibleCount = document.getElementById("visibleCount");
+
+        function filterList() {
+            const q = searchInput.value.toLowerCase();
+            let count = 0;
+            cards.forEach(card => {
+                const txt = card.textContent.toLowerCase();
+                const visible = txt.includes(q);
+                card.style.display = visible ? "block" : "none";
+                if (visible) count++;
+            });
+            visibleCount.textContent = count + " visibles";
+        }
+        searchInput.addEventListener("input", filterList);
+        resetBtn.addEventListener("click", () => { searchInput.value = ""; filterList(); });
+
+        exportBtn.addEventListener("click", () => {
+            const data = Array.from(cards).map(c => ({
+                nom_prenom: c.querySelector(".name").textContent.trim(),
+                matricule: c.querySelector(".badge:nth-child(2)").textContent.trim(),
+                telephone: c.querySelector(".ciVal").textContent.trim()
+            }));
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "mes_filleuls.json";
+            link.click();
+        });
+
+        function copyToClipboard(txt) {
+            navigator.clipboard.writeText(txt);
+            const t = document.getElementById("toast");
+            t.textContent = "Copié ✅";
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 1800);
+        }
+    </script>
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const toasts = document.querySelectorAll('.glass-toast');
+    
+    toasts.forEach(toast => {
+        // 1. Déclencher l'animation d'entrée
+        // Petit délai pour s'assurer que le rendu est fait
+        setTimeout(() => {
+            toast.classList.add('show-toast');
+        }, 100);
+
+        // 2. Prévoir la sortie automatique après 5 secondes
+        setTimeout(() => {
+            removeToast(toast);
+        }, 5000);
+    });
+});
+
+// Fonction pour fermer manuellement
+function closeToast(button) {
+    const toast = button.closest('.glass-toast');
+    removeToast(toast);
+}
+
+// Fonction de suppression avec animation de sortie
+function removeToast(toast) {
+    // Ajoute la classe qui fait glisser vers la droite
+    toast.classList.add('hide-toast');
+    toast.classList.remove('show-toast');
+
+    // Attend la fin de l'animation CSS (0.5s) avant de supprimer du DOM
+    toast.addEventListener('transitionend', function() {
+        toast.remove();
+    });
+}
+</script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,135 @@
+{
+    "members": {
+        "1": {
+            "name": "Nafi Djoubs",
+            "role": "Designer UI • Génie Logiciel",
+            "level": "L2",
+            "stack": "UI / Front",
+            "points": 156,
+            "bio": "Je crée des interfaces futuristes et des animations propres pour IUT Connect+.",
+            "avatar": "assets/images/default-avatar.png",
+            "cover": "assets/images/profile-cover.jpg",
+            "contact": {
+                "phone": "+237 6XX XX XX XX",
+                "whatsapp": "+237 6XX XX XX XX",
+                "github": "https://github.com/username",
+                "facebook": "https://facebook.com/username"
+            },
+            "skills": ["UI Design", "HTML/CSS", "JS", "GSAP"],
+            "portfolio": [{
+                    "title": "IUT Connect+ • Landing",
+                    "desc": "Hero futuriste + animations + cards 3D.",
+                    "tags": ["UI", "Front", "Motion"],
+                    "image": "assets/images/portfolio/p1.jpg",
+                    "link": "https://example.com"
+                },
+                {
+                    "title": "Page Actualités",
+                    "desc": "Grid + détails + dark/light propre.",
+                    "tags": ["UX", "UI"],
+                    "image": "assets/images/portfolio/p2.jpg",
+                    "link": ""
+                }
+            ]
+        },
+
+        "2": {
+            "name": "Zen Market",
+            "role": "Développeur Full-Stack • Génie Logiciel",
+            "level": "L2",
+            "stack": "PHP / JS / MySQL",
+            "points": 201,
+            "bio": "Je structure l’architecture front 100% et je prépare le passage vers une API plus tard.",
+            "avatar": "assets/images/default-avatar.png",
+            "cover": "assets/images/profile-cover.jpg",
+            "contact": {
+                "phone": "+237 6XX XX XX XX",
+                "whatsapp": "+237 6XX XX XX XX",
+                "github": "https://github.com/username",
+                "facebook": "https://facebook.com/username"
+            },
+            "skills": ["Architecture", "PHP", "JavaScript", "MySQL", "UI Integration"],
+            "portfolio": [{
+                    "title": "Profil Membre • Portfolio",
+                    "desc": "Page portfolio avec carte contact + projets + dark/light.",
+                    "tags": ["Front", "UX", "UI"],
+                    "image": "assets/images/portfolio/p3.jpg",
+                    "link": ""
+                },
+                {
+                    "title": "Module Admin (Mock front)",
+                    "desc": "Interface d’ajout/modif/suppression (simulation front).",
+                    "tags": ["UI", "CRUD", "Design System"],
+                    "image": "assets/images/portfolio/p4.jpg",
+                    "link": ""
+                }
+            ]
+        },
+
+        "3": {
+            "name": "Ibrahim N.",
+            "role": "Front-end • Génie Informatique",
+            "level": "L2",
+            "stack": "HTML / CSS / JS",
+            "points": 134,
+            "bio": "Je m’occupe du responsive, des cartes et des animations légères mobile-friendly.",
+            "avatar": "assets/images/default-avatar.png",
+            "cover": "assets/images/profile-cover.jpg",
+            "contact": {
+                "phone": "+237 6XX XX XX XX",
+                "whatsapp": "+237 6XX XX XX XX",
+                "github": "https://github.com/username",
+                "facebook": "https://facebook.com/username"
+            },
+            "skills": ["Responsive", "CSS Advanced", "Animations", "Accessibility"],
+            "portfolio": [{
+                    "title": "Section Équipe • Cards 3D",
+                    "desc": "Cartes équipe avec hover futuriste et liens portfolio.",
+                    "tags": ["UI", "3D", "Hover"],
+                    "image": "assets/images/portfolio/p5.jpg",
+                    "link": ""
+                },
+                {
+                    "title": "ScrollToTop + Micro-interactions",
+                    "desc": "Bouton scroll top avec effets et transitions douces.",
+                    "tags": ["JS", "UI", "Motion"],
+                    "image": "assets/images/portfolio/p6.jpg",
+                    "link": ""
+                }
+            ]
+        },
+
+        "4": {
+            "name": "Aïcha M.",
+            "role": "Communication • UX Writing",
+            "level": "L2",
+            "stack": "Contenu / Design",
+            "points": 98,
+            "bio": "Je rédige les textes, améliore la clarté, et propose des sections utiles (avis, feed, etc.).",
+            "avatar": "assets/images/default-avatar.svg",
+            "cover": "assets/images/profile-cover.jpg",
+            "contact": {
+                "phone": "+237 6XX XX XX XX",
+                "whatsapp": "+237 6XX XX XX XX",
+                "github": "https://github.com/username",
+                "facebook": "https://facebook.com/username"
+            },
+            "skills": ["UX Writing", "Communication", "Branding", "Structuration"],
+            "portfolio": [{
+                    "title": "Page Avis • UX",
+                    "desc": "Structure d’une page avis simple et convaincante.",
+                    "tags": ["UX", "Content", "UI"],
+                    "image": "assets/images/portfolio/p7.jpg",
+                    "link": ""
+                },
+                {
+                    "title": "Guidelines UI • IUT Connect+",
+                    "desc": "Textes et règles pour garder un style cohérent.",
+                    "tags": ["Design", "System", "Docs"],
+                    "image": "assets/images/portfolio/p8.jpg",
+                    "link": ""
+                }
+            ]
+        }
+    }
+}

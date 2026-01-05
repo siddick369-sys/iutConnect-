@@ -1,0 +1,9 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Requête Invalide{% endblock %}
+{% block code %}400{% endblock %}
+{% block message_title %}Mauvaise manipulation ⚠️{% endblock %}
+{% block message_content %}
+    Votre navigateur a envoyé une demande que le serveur ne peut pas comprendre.
+    Évitez de modifier les URL manuellement.
+{% endblock %}

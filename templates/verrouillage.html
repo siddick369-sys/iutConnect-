@@ -1,0 +1,446 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accès Restreint | Circuit Sécurisé</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABLES DE THÈMES --- */
+        :root {
+            /* Dark Mode (Défaut) - Ambiance "Carte Mère" */
+            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e); /* Violet/Bleu Nuit */
+            --glass-bg: rgba(20, 20, 40, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #aaa;
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --input-border: rgba(255, 255, 255, 0.2);
+            --gold-accent: #D4AF37;
+            --blue-accent: #00C2FF;
+            --circuit-line-opacity: 0.6;
+        }
+
+        [data-theme="light"] {
+            /* Light Mode (Doux) - Ambiance "Laboratoire Tech" */
+            --bg-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-main: #2c3e50;
+            --text-muted: #555;
+            --input-bg: rgba(255, 255, 255, 0.5);
+            --input-border: rgba(0, 0, 0, 0.1);
+            --gold-accent: #b8860b; /* Or plus foncé pour contraste */
+            --blue-accent: #0077cc;
+            --circuit-line-opacity: 0.2; /* Plus discret sur fond clair */
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-gradient);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+            position: relative;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        /* --- BACKGROUND ANIMATION (CIRCUIT) --- */
+        .circuit-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Grille de fond (PCB) */
+        .pcb-grid {
+            position: absolute;
+            width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            opacity: var(--circuit-line-opacity);
+            transition: opacity 0.5s;
+        }
+
+        /* Lignes électriques qui bougent */
+        .circuit-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, var(--gold-accent), var(--blue-accent), transparent);
+            height: 2px;
+            width: 200px;
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--blue-accent);
+            opacity: 0;
+            animation: circuitFlow 4s linear infinite;
+        }
+
+        /* Positions variées pour les lignes */
+        .line-1 { top: 20%; left: -200px; animation-duration: 5s; animation-delay: 0s; }
+        .line-2 { top: 50%; left: -200px; animation-duration: 7s; animation-delay: 2s; }
+        .line-3 { top: 80%; left: -200px; animation-duration: 6s; animation-delay: 1s; }
+        .line-4 { top: 35%; right: -200px; animation-direction: reverse; animation-duration: 8s; }
+        .line-5 { top: 65%; right: -200px; animation-direction: reverse; animation-duration: 5s; animation-delay: 1.5s; }
+
+        /* Lignes verticales */
+        .circuit-line-v {
+            position: absolute;
+            background: linear-gradient(180deg, transparent, var(--blue-accent), var(--gold-accent), transparent);
+            width: 2px;
+            height: 200px;
+            left: 15%; top: -200px;
+            animation: circuitFlowV 6s linear infinite;
+            box-shadow: 0 0 10px var(--gold-accent);
+        }
+        .line-v-2 { left: 85%; animation-delay: 3s; }
+
+        @keyframes circuitFlow {
+            0% { transform: translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(calc(100vw + 200px)); opacity: 0; }
+        }
+
+        @keyframes circuitFlowV {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(calc(100vh + 200px)); opacity: 0; }
+        }
+
+        /* --- THEME TOGGLE --- */
+        .theme-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        .theme-switch:hover { transform: rotate(15deg) scale(1.1); }
+        .theme-icon { font-size: 1.2rem; line-height: 1; }
+
+        /* --- CARTE PRINCIPALE --- */
+        .lock-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 380px;
+            position: relative;
+            z-index: 10;
+            animation: float 6s ease-in-out infinite;
+            transition: background 0.3s, border 0.3s, box-shadow 0.3s;
+        }
+
+        .icon-lock {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            /* Dégradé sur l'icône */
+            background: linear-gradient(135deg, var(--blue-accent), var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* Légère lueur */
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+        }
+
+        h2 { font-weight: 600; margin-bottom: 10px; color: var(--text-main); }
+        p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px; }
+
+        /* Champ PIN */
+        .pin-input {
+            width: 100%;
+            box-sizing: border-box; /* Important pour ne pas dépasser */
+            padding: 15px;
+            font-size: 1.8rem;
+            text-align: center;
+            letter-spacing: 12px;
+            border: 2px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--gold-accent);
+            border-radius: 12px;
+            outline: none;
+            margin-bottom: 25px;
+            transition: all 0.3s;
+            font-family: monospace;
+        }
+        .pin-input:focus {
+            border-color: var(--blue-accent);
+            box-shadow: 0 0 20px rgba(0, 194, 255, 0.2);
+            background: rgba(0, 194, 255, 0.05);
+        }
+
+        /* Bouton Principal */
+        .btn-unlock {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, var(--blue-accent), #0077FF);
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
+        }
+        .btn-unlock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 119, 255, 0.4);
+        }
+        .btn-unlock:active { transform: scale(0.98); }
+
+        /* Lien secondaire style bouton ghost */
+        .btn-ghost {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 15px;
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+        .btn-ghost:hover { color: var(--blue-accent); }
+
+        /* Lien retour */
+        .link-back {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .link-back:hover { opacity: 1; color: var(--text-main); }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .alert { 
+            background: rgba(255, 77, 77, 0.2);
+            color: #ff4d4d; 
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px; 
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 77, 77, 0.3);
+        }
+        
+.gtranslate_wrapper {
+    position: fixed;
+    top: 10%;
+    /* En haut... */
+    left: 20%;
+    /* ...à droite */
+    z-index: 10000;
+    /* Très haut pour passer au-dessus de tout */
+}
+
+
+/* Optionnel : Rendre le sélecteur plus joli */
+
+.gtranslate_wrapper select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Fond sombre transparent */
+    color: white;
+    font-family: sans-serif;
+}
+
+
+/* --- AJUSTEMENT SPÉCIAL MOBILE --- */
+
+@media (max-width: 768px) {
+    .gtranslate_wrapper {
+        bottom: 15px;
+        /* Un peu plus haut sur mobile pour gagner de la place */
+        left: 15px;
+        /* Un peu plus au bord */
+    }
+    /* Optionnel : Rendre le sélecteur un peu plus petit sur mobile */
+    .gtranslate_wrapper select {
+        font-size: 12px;
+        padding: 3px;
+    }
+}
+
+#spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #0d0d1a 60%, #000);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.neon-spinner {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.neon-spinner .ring {
+    position: absolute;
+    border: 4px solid transparent;
+    border-top: 4px solid var(--orange);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    animation: spin 1.5s linear infinite;
+    box-shadow: 0 0 15px var(--orange);
+}
+
+.neon-spinner .ring:nth-child(2) {
+    border-top-color: var(--blue);
+    animation-delay: .5s;
+    box-shadow: 0 0 15px var(--blue);
+}
+
+.neon-spinner .ring:nth-child(3) {
+    border-top-color: #fff;
+    animation-delay: 1s;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+    </style>
+</head>
+<body>
+
+<div class="circuit-container">
+    <div class="pcb-grid"></div>
+    <div class="circuit-line line-1"></div>
+    <div class="circuit-line line-2"></div>
+    <div class="circuit-line line-3"></div>
+    <div class="circuit-line line-4"></div>
+    <div class="circuit-line line-5"></div>
+    <div class="circuit-line-v line-v-1"></div>
+    <div class="circuit-line-v line-v-2"></div>
+</div>
+
+    <!-- Spinner -->
+    <div id="spinner">
+        <div class="neon-spinner">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+    </div>
+
+
+<button class="theme-switch" id="themeToggle" title="Changer de thème">
+    <span class="theme-icon">🌙</span>
+</button>
+
+<div class="lock-card">
+    <div class="icon-lock">🔒</div>
+    <h2>Zone Sécurisée</h2>
+    <p>Entrez le code PIN du coffre-fort.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="password" name="code_secret" class="pin-input" maxlength="4" placeholder="••••" required autofocus autocomplete="off" inputmode="numeric">
+        <button type="submit" class="btn-unlock">Déverrouiller</button>
+    </form>
+    
+        
+        <a href="{% url 'mot-de-passe-oublie' %}" style="margin-top: 10px;" class="btn-unlock">Code secret oublié ?</a>
+
+    <a href="{% url 'accueil' %}" class="link-back">Annuler et retour</a>
+    <div class="gtranslate_wrapper"></div>
+</div>
+
+<script>
+    const toggleBtn = document.getElementById('themeToggle');
+    const icon = toggleBtn.querySelector('.theme-icon');
+    const html = document.documentElement;
+
+    // Vérifier préférence locale
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        html.setAttribute('data-theme', savedTheme);
+        updateIcon(savedTheme);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+    });
+
+    function updateIcon(theme) {
+        if (theme === 'light') {
+            icon.textContent = '☀️';
+            icon.style.filter = "none";
+        } else {
+            icon.textContent = '🌙';
+        }
+    }
+</script>
+
+    <script>
+        window.gtranslateSettings = {
+            "default_language": "fr", // Langue de base de ton site
+            "detect_browser_language": true, // Détecte la langue du visiteur auto
+            "languages": ["fr", "en"], // Les langues que tu veux proposer (ici juste FR et EN)
+            "wrapper_selector": ".gtranslate_wrapper",
+            "alt_flags": {
+                "en": "usa"
+            }, // Optionnel : utilise le drapeau USA pour l'anglais
+            "flag_style": "3d" // Style des drapeaux (2d ou 3d)
+        }
+        window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('spinner').style.display = 'none';
+    }, 1000);
+});
+
+    </script>
+
+
+</body>
+</html>

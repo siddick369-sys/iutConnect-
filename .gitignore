@@ -1,0 +1,60 @@
+# === Fichiers sensibles ===
+.env
+*.env
+!example.env  # garder un modèle de structure du .env sans les secrets
+
+# === Environnements virtuels ===
+venv/
+env/
+.venv/
+ENV/
+Lib/
+.iutconnect/
+Lib/
+Include/
+Scripts/
+
+# === Fichiers Python compilés ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+
+# === Logs et sauvegardes ===
+*.log
+logs/
+security.log
+*.bak
+*.swp
+*.tmp
+
+# === Bases de données locales ===
+db.sqlite3
+*.sqlite3
+
+# === Dossiers Django ===
+media/
+staticfiles/
+
+build/
+dist/
+
+# === IDE / OS ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# === Docker ===
+*.pid
+*.seed
+docker-compose.override.yml
+celerybeat-schedule
+celerybeat.pid
+
+# === Autres caches ===
+.cache/
+__pycache__/
+.mypy_cache/
+.pytest_cache/

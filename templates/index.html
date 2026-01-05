@@ -1,0 +1,1024 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IUT Connect+</title>
+    <link rel="stylesheet" href="{% static 'css/style.css'%}">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="liquid-bg" aria-hidden="true">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+        <div class="blob b3"></div>
+    </div>
+    <!-- Orbs -->
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <!-- ===============================
+     BOUQUET SVG + POT + PETITES PÉTALES SUR TIGES
+     Desktop: full animation
+     Mobile: lite (fluide)
+     =============================== -->
+
+
+    </head>
+
+
+    <div class="svg-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 500">
+            
+            <defs>
+                <radialGradient id="orangePetal" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                    <stop offset="0%" style="stop-color:#ffcba4;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ff6347;stop-opacity:1" />
+                </radialGradient>
+                
+                <radialGradient id="pinkPetal" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                    <stop offset="0%" style="stop-color:#ffb6c1;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#c71585;stop-opacity:1" />
+                </radialGradient>
+                
+                <radialGradient id="purplePetal" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                    <stop offset="10%" style="stop-color:#e6e6fa;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#8a2be2;stop-opacity:1" />
+                </radialGradient>
+
+                <radialGradient id="darkCenter" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#550000" />
+                    <stop offset="100%" style="stop-color:#1a0000" />
+                </radialGradient>
+
+                 <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(135, 206, 235, 0.2)"/>
+                    <stop offset="50%" style="stop-color:rgba(255, 255, 255, 0.4)"/>
+                    <stop offset="100%" style="stop-color:rgba(135, 206, 235, 0.2)"/>
+                </linearGradient>
+                <linearGradient id="waterGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(0, 0, 139, 0.8)"/>
+                    <stop offset="100%" style="stop-color:rgba(65, 105, 225, 0.5)"/>
+                </linearGradient>
+            </defs>
+
+            <g id="stems-back">
+                <rect x="148" y="350" width="4" height="130" class="stem" opacity="0.7" />
+                <rect x="188" y="380" width="4" height="100" class="stem" opacity="0.7" />
+                <path d="M110 480 Q 110 420, 120 380" stroke="var(--stem-color)" fill="none" stroke-width="4" opacity="0.7" class="stem"/>
+            </g>
+
+             <polygon points="80,480 220,480 240,320 60,320" class="vase-glass" />
+             <polygon points="85,475 215,475 230,380 70,380" class="vase-water" />
+
+            <g id="flower-center-group">
+                <rect x="147" y="150" width="6" height="250" class="stem" rx="3" />
+                <path d="M150,250 Q 120,240 120,220 Q 150,230 153,250 Z" class="leaf"/>
+                
+                <g transform="translate(150, 150)">
+                    <g fill="url(#orangePetal)">
+                        <ellipse cx="0" cy="-40" rx="15" ry="45" />
+                        <ellipse cx="0" cy="-40" rx="15" ry="45" transform="rotate(45)" />
+                        <ellipse cx="0" cy="-40" rx="15" ry="45" transform="rotate(90)" />
+                        <ellipse cx="0" cy="-40" rx="15" ry="45" transform="rotate(135)" />
+                        <ellipse cx="0" cy="-40" rx="15" ry="45" transform="rotate(180)" />
+                        <ellipse cx="0" cy="-40" rx="15" ry="45" transform="rotate(225)" />
+                        <ellipse cx="0" cy="-40" rx="15" ry="45" transform="rotate(270)" />
+                        <ellipse cx="0" cy="-40" rx="15" ry="45" transform="rotate(315)" />
+                    </g>
+                    <circle cx="0" cy="0" r="12" fill="url(#darkCenter)" />
+                </g>
+            </g>
+
+            <g id="flower-right-group">
+                <rect x="187" y="220" width="6" height="200" class="stem" rx="3" />
+                <path d="M190,300 Q 220,290 220,270 Q 190,280 193,300 Z" class="leaf"/>
+
+                <g transform="translate(190, 220) scale(0.8)">
+                    <g fill="url(#pinkPetal)">
+                        <ellipse cx="0" cy="-35" rx="15" ry="40" />
+                        <ellipse cx="0" cy="-35" rx="15" ry="40" transform="rotate(60)" />
+                        <ellipse cx="0" cy="-35" rx="15" ry="40" transform="rotate(120)" />
+                        <ellipse cx="0" cy="-35" rx="15" ry="40" transform="rotate(180)" />
+                        <ellipse cx="0" cy="-35" rx="15" ry="40" transform="rotate(240)" />
+                        <ellipse cx="0" cy="-35" rx="15" ry="40" transform="rotate(300)" />
+                    </g>
+                    <circle cx="0" cy="0" r="10" fill="url(#darkCenter)" />
+                </g>
+            </g>
+
+            <g id="flower-left-group">
+                <path d="M110 480 C 110 350, 100 250, 50 250" fill="none" stroke="#2d5a3f" stroke-width="6" stroke-linecap="round" />
+                
+                <g id="purple-head-sway" transform="translate(50, 250) rotate(-110) scale(0.9)">
+                    <g fill="url(#purplePetal)">
+                         <ellipse cx="0" cy="-30" rx="12" ry="40" transform="rotate(10)"/>
+                        <ellipse cx="0" cy="-30" rx="12" ry="40" transform="rotate(50)" />
+                        <ellipse cx="0" cy="-30" rx="12" ry="40" transform="rotate(90)" />
+                        <ellipse cx="0" cy="-30" rx="12" ry="40" transform="rotate(150)" />
+                        <ellipse cx="0" cy="-30" rx="12" ry="40" transform="rotate(210)" />
+                        <ellipse cx="0" cy="-30" rx="12" ry="40" transform="rotate(270)" />
+                         <ellipse cx="0" cy="-30" rx="12" ry="40" transform="rotate(320)" />
+                    </g>
+                    <circle cx="0" cy="0" r="10" fill="url(#darkCenter)" />
+                </g>
+            </g>
+
+            <polygon points="80,480 220,480 240,320 60,320" fill="url(#glassGradient)" opacity="0.3" />
+             <line x1="60" y1="320" x2="240" y2="320" class="vase-rim" />
+
+        </svg>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">IUT <span>Connect+</span></div>
+        <ul class="nav-links">
+            <li>
+                <a href="#hero">
+                    <ion-icon name="home"></ion-icon>
+                    Accueil
+                </a>
+            </li>
+            <li><a href="#about">À propos</a></li>
+            <li><a href="#objectifs">Objectifs</a></li>
+            <li><a href="#events">Événements</a></li>
+            <li><a href="{% url 'avis'%}">avis</a></li>
+            <li> <form action="{% url 'deconnexion' %}" method="post">
+          {% csrf_token %}
+          <button class="btn" type="submit">Déconnexion</button>
+        </form>
+    </li>
+
+            <li>
+                <a href="#" id="openProfile">
+                    <ion-icon name="person-circle-outline"></ion-icon> Profil</a>
+            </li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </nav>
+
+    <div class="gtranslate_wrapper"></div>
+
+    <!-- Spinner -->
+    <div id="spinner">
+        <div class="neon-spinner">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+    </div>
+
+
+    <!-- Hero -->
+    <section class="hero reveal" id="hero">
+        <div class="slideshow">
+            <img src="{% static 'image/img1.jpeg '%}" alt="mentorat">
+            <img src="{% static 'image/img2.jpeg '%}" alt="mentorat">
+            <img src="{% static 'image/img3.jpeg '%}" alt="learning">
+            <img src="{% static 'image/img4.jpeg '%}" alt="digital">
+        </div>
+        <div class="hero-content">
+            <h1>Bienvenue sur <span id="rotatingText"></span></h1>
+            <p>Un programme de mentorat, d’événements et d’identité numérique pour les étudiants de l’IUT de Ngaoundéré.</p>
+{% comment %}             
+         <div class="btns trans" data-key="btnparrain">
+                <button class="btn">Devenir parrain</button>
+                <button class="btn">voir son parrain</button>
+            </div>  {% endcomment %}
+            {% if niveau == "1" %}
+    
+    {% if parrainage %}
+      <a href="{% url 'voir_parrain' %}" class="btn-action btn-blue">
+        👁️ Voir mon Parrain
+      </a>
+      
+    {% else %}
+      <form action="{% url 'attribuer' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn">
+          🎓 M'attribuer un Parrain
+        </button>
+      </form>
+    {% endif %}
+
+  {% elif niveau == "2" %}
+    <a href="{% url 'voir_filleuls' %}" class="btn">
+      🤝 Voir mes filleuls
+    </a>
+  {% endif %}
+        </div> 
+    </section>
+
+    <!-- À propos -->
+    <section class="about reveal" id="about">
+        <div class="about-container">
+            <div class="about-text">
+                <h2>À propos du projet</h2>
+                <p>IUT Connect+ relie les étudiants grâce à un système de parrainage, d’événements et de cartes numériques.</p>
+                <ul>
+                    <li>🤝 Créer des liens entre promotions</li>
+                    <li>🎓 Faciliter l’intégration</li>
+                    <li>💡 Valoriser les talents étudiants</li>
+                </ul>
+            </div>
+            <div class="about-img">
+                <img src="{% static 'image/img7.jpeg '%}" alt="">
+            </div>
+        </div>
+    </section>
+
+    <!-- Objectifs -->
+    <section class="objectifs reveal" id="objectifs">
+        <h2>Nos Objectifs</h2>
+        <div class="cards-grid">
+            <div class="animated-card">
+                <div class="line left"></div>
+                <div class="line right"></div>
+                <h3>Mentorat</h3>
+                <p>Accompagner les nouveaux étudiants via un système de parrainage intelligent.</p>
+            </div>
+            <div class="animated-card">
+
+                <div class="line left"></div>
+                <div class="line right"></div>
+                <h3>Événements</h3>
+                <p>Organiser la soirée de parrainage et d’autres activités favorisant la cohésion.</p>
+            </div>
+            <div class="animated-card">
+
+                <div class="line left"></div>
+                <div class="line right"></div>
+                <h3>Identité</h3>
+                <p>Partager vos ressources entre parrain et filleul</p>
+            </div>
+        </div>
+    </section>
+    <!-- ÉQUIPE -->
+    <section class="team reveal-bounce" id="team">
+    <h2>Notre Équipe</h2>
+    <div class="team-grid">
+        
+        <div class="team-card electric-border">
+            <div class="eb-canvas-container"><canvas class="eb-canvas"></canvas></div>
+            <div class="eb-layers">
+                <div class="eb-glow-1"></div>
+                <div class="eb-glow-2"></div>
+                <div class="eb-background-glow"></div>
+            </div>
+            
+            <div class="eb-content">
+                <div class="banner"></div>
+                <img class="profile-pic" src="{% static 'image/hacker.jpeg'%}" alt="Membre 1">
+                <h3>ABOUBAKAR IBRAHIM</h3>
+                <p>Interface UI/UX & Integration-Optimisation</p>
+                <div class="team-buttons">
+                    <a href="#contact" class="btn-team primary">Message</a>
+                </div>
+                <div class="team-socials">
+                    <a href="#"><i>📘</i></a>
+                    <a href="#"><i>📸</i></a>
+                    <a href="#"><i>🐦</i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-card electric-border">
+            <div class="eb-canvas-container"><canvas class="eb-canvas"></canvas></div>
+            <div class="eb-layers">
+                <div class="eb-glow-1"></div>
+                <div class="eb-glow-2"></div>
+                <div class="eb-background-glow"></div>
+            </div>
+            <div class="eb-content">
+                <div class="banner"></div>
+                <img class="profile-pic" src="{% static 'image/hacker.jpeg'%}" alt="Membre 2">
+                <h3>ABBA SAIDOU</h3>
+                <p>Architecture -Securite -Acces</p>
+                <div class="team-buttons">
+                    <a href="#contact" class="btn-team primary">Message</a>
+                </div>
+                <div class="team-socials">
+                    <a href="#"><i>🌐</i></a>
+                    <a href="#"><i>📸</i></a>
+                    <a href="#"><i>🐦</i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-card electric-border">
+            <div class="eb-canvas-container"><canvas class="eb-canvas"></canvas></div>
+            <div class="eb-layers">
+                <div class="eb-glow-1"></div>
+                <div class="eb-glow-2"></div>
+                <div class="eb-background-glow"></div>
+            </div>
+            <div class="eb-content">
+                <div class="banner"></div>
+                <img class="profile-pic" src="{% static 'image/hacker.jpeg'%}" alt="Membre 3">
+                <h3>ANIA MARDOCHEE</h3>
+                <p>Assignation -Administration -Statistiques</p>
+                <div class="team-buttons">
+                    <a href="#contact" class="btn-team primary">Message</a>
+                </div>
+                <div class="team-socials">
+                    <a href="#"><i>📘</i></a>
+                    <a href="#"><i>📸</i></a>
+                    <a href="#"><i>🐦</i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-card electric-border">
+            <div class="eb-canvas-container"><canvas class="eb-canvas"></canvas></div>
+            <div class="eb-layers">
+                <div class="eb-glow-1"></div>
+                <div class="eb-glow-2"></div>
+                <div class="eb-background-glow"></div>
+            </div>
+            <div class="eb-content">
+                <div class="banner"></div>
+                <img class="profile-pic" src="{% static 'image/hacker.jpeg'%}" alt="Membre 3">
+                <h3>IBRAHIMA BAPETEL</h3>
+                <p>Concepteur Base de Données & Analyste Système</p>
+                <div class="team-buttons">
+                    <button class="btn-team primary">Message</button>
+                </div>
+                <div class="team-socials">
+                    <a href="#"><i>📘</i></a>
+                    <a href="#"><i>📸</i></a>
+                    <a href="#"><i>🐦</i></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+    <!-- Événements -->
+    <section class="events reveal" id="events">
+        <h2>Nos Événements</h2>
+        <div class="slider">
+            <div class="slide">
+
+                <div class="line left"></div>
+                <div class="line right"></div>
+                <img src="{% static 'image/img6.jpeg '%}" alt="">
+                <h4>Soirée de Parrainage</h4>
+            </div>
+            <div class="slide">
+
+                <div class="line left"></div>
+                <div class="line right"></div>
+                <img src="{% static 'image/img5.jpeg '%}" alt="">
+                <h4>Ateliers Mentorat</h4>
+            </div>
+            <div class="slide">
+
+                <div class="line left"></div>
+                <div class="line right"></div>
+                <img src="https://images.unsplash.com/photo-1556761175-129418cb2dfe?auto=format&fit=crop&w=800&q=60" alt="">
+                <h4>Rencontres Campus</h4>
+            </div>
+        </div>
+    </section>
+    <section class="how" id="how">
+        <div class="how-head">
+            <h2>Comment ça marche</h2>
+            <p>3 étapes simples pour démarrer sur IUT Connect+.</p>
+        </div>
+
+        <div class="how-rail" id="howRail">
+            <!-- CARD 1 -->
+            <article class="how-stick" tabindex="0" data-step="1">
+                <div class="how-stick__pulse" aria-hidden="true"></div>
+
+                <div class="how-stick__bar">
+                    <span class="how-stick__num">1</span>
+                    <span class="how-stick__mini">se connecter </span>
+                </div>
+
+                <div class="how-stick__panel">
+                    <img class="how-stick__img" src="{% static 'image/step1.jpeg'%}" alt="">
+                    <div class="how-stick__body">
+                        <h3>connecte toi</h3>
+                        <p>Entre tes informations d'enregistrement a IUT de Ngaoundere</p>
+                        <button class="how-stick__btn" type="button">Continuer</button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 2 -->
+            <article class="how-stick" tabindex="0" data-step="2">
+                <div class="how-stick__pulse" aria-hidden="true"></div>
+
+                <div class="how-stick__bar">
+                    <span class="how-stick__num">2</span>
+                    <span class="how-stick__mini">Explorer</span>
+                </div>
+
+                <div class="how-stick__panel">
+                    <img class="how-stick__img" src="{% static 'image/step2.jpeg'%}" alt="">
+                    <div class="how-stick__body">
+                        <h3>Explorer</h3>
+                        <p>Découvre ton parrain, interagis avec lui</p>
+                        <button class="how-stick__btn" type="button">Voir</button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 3 -->
+            <article class="how-stick" tabindex="0" data-step="3">
+                <div class="how-stick__pulse" aria-hidden="true"></div>
+
+                <div class="how-stick__bar">
+                    <span class="how-stick__num">3</span>
+                    <span class="how-stick__mini">Nous aider</span>
+                </div>
+
+                <div class="how-stick__panel">
+                    <img class="how-stick__img" src="{% static 'image/step3.jpeg'%}" alt="">
+                    <div class="how-stick__body">
+                        <h3>Interagir</h3>
+                        <p>Donne nous un avis pour ameliorer l'experience utilisateur ,participer aux activités, envoie nous un message pour nous motiver</p>
+                        <button class="how-stick__btn" type="button">Démarrer</button>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+<section class="section-futuriste section-futuriste--soft reveal" id="testimonials">
+    <div class="section-head">
+        <h2>Témoignages</h2>
+        <p>Ce que les étudiants disent de l’expérience IUT Connect+.</p>
+    </div>
+
+    <div class="slider-3d-container">
+        <div class="slider-3d-wrapper">
+            
+            {% for avis in avis_list %}
+            <article class="f-card f-card--testimonial slider-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="f-user">
+                    <img class="f-user__avatar" 
+                         src="https://ui-avatars.com/api/?name={{ avis.title|urlencode }}&background=random&color=fff&size=128" 
+                         alt="User">
+                    
+                    <div class="f-user__meta">
+                        <h4>{{ avis.kind|title }}</h4> 
+                        <span>{{ avis.created_at|date:"d M Y" }}</span>
+                    </div>
+                </div>
+                
+                <strong style="display:block; margin-top:10px; color:var(--blue);">{{ avis.title }}</strong>
+                
+                <p class="f-quote">“{{ avis.message|truncatechars:80 }}”</p>
+                
+                <div class="f-stars">
+                    {% with ''|center:avis.rating as range %}
+                    {% for _ in range %}★{% endfor %}
+                    {% endwith %}
+                </div>
+            </article>
+            {% empty %}
+            <article class="f-card f-card--testimonial slider-item active">
+                <p class="f-quote">Aucun avis pour le moment. Soyez le premier !</p>
+            </article>
+            {% endfor %}
+
+        </div>
+        
+        <div class="slider-controls">
+            <button onclick="prevSlide()">❮</button>
+            <button onclick="nextSlide()">❯</button>
+        </div>
+    </div>
+</section>
+
+    <!-- CHIFFRES CLÉS -->
+    <section class="dashboard-section">
+    <div class="section-header">
+        <h2>Vue d'ensemble</h2>
+        <p>Statistiques en temps réel du programme de parrainage</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="icon-box gold">
+                🎓
+            </div>
+            <div class="stat-info">
+                <h3>Parrains Dispos</h3>
+                <p class="counter">{{ stats.parrains }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon-box blue">
+                🤝
+            </div>
+            <div class="stat-info">
+                <h3>Binômes Formés</h3>
+                <p class="counter">{{ stats.parraines }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- FAQ -->
+    <section class="section-futuriste section-futuriste--soft reveale" id="faq">
+        <div class="section-head">
+            <h2>FAQ</h2>
+            <p>Les réponses aux questions fréquentes.</p>
+        </div>
+
+        <div class="f-faq">
+            <details class="f-faqItem">
+                <summary>Comment obtenir un parrain ?</summary>
+                <p>Après connexion, un parrain disponible de ta filière est proposé automatiquement.</p>
+            </details>
+
+            <details class="f-faqItem">
+                <summary>Que faire si j'ai un problème  ?</summary>
+                <p>Oui, vous pouver utiliser le formulaire de contact ci dessous ou alors utiliser le bouton signaler de l'espace parrain/filleul</p>
+            </details>
+
+            <details class="f-faqItem">
+                <summary>Est-ce gratuit ?</summary>
+                <p>Oui, le programme est destiné aux étudiants de l’IUT de Ngaoundéré.</p>
+            </details>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="section-futuriste reveal" id="cta">
+        <div class="f-cta">
+            <h2>Prêt à rejoindre IUT Connect+ ?</h2>
+            <p>Choisis ton parcours : devenir parrain ou trouver ton parrain.</p>
+            <div class="f-ctaBtns">
+                            {% if niveau == "1" %}
+    
+    {% if parrainage %}
+      <a href="{% url 'voir_parrain' %}" class="btn-action btn-blue">
+        👁️ Voir mon Parrain
+      </a>
+      
+    {% else %}
+      <form action="{% url 'attribuer' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn">
+          🎓 M'attribuer un Parrain
+        </button>
+      </form>
+    {% endif %}
+
+  {% elif niveau == "2" %}
+    <a href="{% url 'voir_filleuls' %}" class="btn">
+      🤝 Voir mes filleuls
+    </a>
+  {% endif %}
+
+            </div>
+        </div>
+    </section>
+    <!-- CONTACT -->
+    <section class="contact reveal" id="contact">
+        <h2 class="trans" data-key="contactTitle">Contactez-nous</h2>
+        <p class="trans" data-key="contactText">
+            Pour toute question ou collaboration, n’hésitez pas à nous écrire ou à venir nous rencontrer à l’IUT de Ngaoundéré.
+        </p>
+
+        <div class="contact-container">
+            <!-- Coordonnées -->
+            <div class="contact-info">
+                <div class="info-box">
+                    <div class="icon">📍</div>
+                    <div>
+                        <h4 class="trans" data-key="contactAddressTitle">Adresse</h4>
+                        <p class="trans" data-key="contactAddress">IUT de Ngaoundéré, BP 455<br>Cameroun</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="icon">📞</div>
+                    <div>
+                        <h4 class="trans" data-key="contactPhoneTitle">Téléphone</h4>
+                        <p class="trans" data-key="contactPhone">+237 6 97 51 88 51</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="icon">✉️</div>
+                    <div>
+                        <h4 class="trans" data-key="contactEmailTitle">Email</h4>
+                        <p class="trans" data-key="contactEmail">iutconnect@gmail.com</p>
+                    </div>
+                </div>
+
+                <div class="contact-socials">
+                    <h4 class="trans" data-key="contactSocials">Suivez-nous</h4>
+                    <div class="social-icons">
+                        <a href="#"><i>🌐</i></a>
+                        <a href="#"><i>📘</i></a>
+                        <a href="#"><i>📸</i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <form class="contact-form">
+                <h3 class="trans" data-key="contactFormTitle">Envoyer un message</h3>
+                <label for="name" class="trans" data-key="contactNameLabel">Nom complet</label>
+                <input type="text" id="name" name="name" placeholder="Votre nom" required>
+                <label for="email" class="trans" data-key="contactEmailLabel">Email</label>
+                <input type="email" id="email" name="email" placeholder="Votre email" required>
+                <label for="message" class="trans" data-key="contactMsgLabel">Message</label>
+                <textarea id="message" rows="4" name="message" placeholder="Votre message..." required></textarea>
+                <button type="submit" class="btn send-btn trans" data-key="contactSend">Envoyer</button>
+            </form>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <h4>Office</h4>
+                <p>IUT de Ngaoundéré<br>BP 455 Ngaoundéré, Cameroun<br>iutconnect@gmail.com</p>
+            </div>
+            <div>
+                <h4>Liens</h4>
+                <ul>
+                    <li><a href="#hero">Accueil</a></li>
+                    <li><a href="#about">À propos</a></li>
+                    <li><a href="#objectifs">Objectifs</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Suivez-nous</h4>
+                <div class="socials">
+                    <a href="#"><i>🌐</i></a>
+                    <a href="#"><i>📘</i></a>
+                    <a href="#"><i>📸</i></a>
+                </div>
+            </div>
+        </div>
+        <p class="copy">© 2025 IUT Connect+ — Tous droits réservés</p>
+    </footer>
+    {% if messages %}
+<div class="toast-container">
+    {% for message in messages %}
+    <div class="glass-toast toast-{{ message.tags }} show-toast">
+        <div class="toast-icon">
+            {% if message.tags == 'success' %}✨
+            {% elif message.tags == 'error' or message.tags == 'danger' %}⚠️
+            {% elif message.tags == 'warning' %}⚡
+            {% else %}ℹ️{% endif %}
+        </div>
+        <div class="toast-content">
+            <span class="toast-title">
+                {% if message.tags == 'success' %}Succès
+                {% elif message.tags == 'error' or message.tags == 'danger' %}Erreur
+                {% elif message.tags == 'warning' %}Attention
+                {% else %}Info{% endif %}
+            </span>
+            <span class="toast-message">{{ message }}</span>
+        </div>
+        <button class="toast-close" onclick="closeToast(this)">×</button>
+        <div class="toast-progress"></div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+<!-- MODAL PROFIL -->
+<div class="profile-modal" id="profileModal">
+  <div class="profile-card profile-image-only" id="profileImageCard" tabindex="0">
+
+    <!-- IMAGE (visible par défaut) -->
+    <div class="pimg-wrapper">
+        {% if etudiant.photo %}
+            <img src="{{ etudiant.photo.url }}" alt="Photo profil" class="pimg" id="profileImage">
+        {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ etudiant.nom_prenom|urlencode }}&background=0072ff&color=fff&size=128"
+                 alt="Avatar" class="pimg" id="profileImage">
+        {% endif %}
+        <div class="pimg-halo"></div>
+    </div>
+
+    <!-- X toujours visible -->
+    <button class="pimg-x" id="closeProfileX" type="button" aria-label="Fermer">✕</button>
+
+    <!-- OVERLAY (hover/tap) -->
+    <div class="pimg-overlay" aria-hidden="true">
+      <div class="pimg-top">
+        <div class="pimg-icons">
+          <button class="pimg-ico" type="button" aria-label="Badge">🎓</button>
+          <button class="pimg-ico" type="button" aria-label="Star">⭐</button>
+          <button class="pimg-ico" type="button" aria-label="Power">⚡</button>
+        </div>
+
+        <div class="pimg-main">
+          <h3 id="profileName">{{ etudiant.nom_prenom }}</h3>
+          <p id="profileEmail">{{ etudiant.email }}</p>
+        </div>
+      </div>
+
+      <div class="pimg-info">
+        <div class="pimg-row">
+          <span class="pimg-label">Matricule</span>
+          <span class="pimg-value" id="profileMatricule">{{ etudiant.matricule }}</span>
+        </div>
+        <div class="pimg-row">
+          <span class="pimg-label">Filière</span>
+          <span class="pimg-value" id="profileFiliere">{{ etudiant.parcours }}</span>
+        </div>
+        <div class="pimg-row">
+          <span class="pimg-label">Mention</span>
+          <span class="pimg-value">{{ etudiant.mention }}</span>
+        </div>
+      </div>
+
+      <div class="pimg-actions">
+        <form action="{% url 'deconnexion' %}" method="post">
+          {% csrf_token %}
+          <button class="btn-logout" type="submit">Déconnexion</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="warningModal" class="glass-alert">
+    <div class="glass-card error">
+        <h3 id="modalTitle">⚠️ Message refusé</h3>
+        <p id="modalMessage">Votre message contient des éléments non autorisés.</p>
+        <button id="closeModalBtn" class="btn-warning">Compris, je corrige</button>
+    </div>
+</div>
+
+<div id="logoutBadge" class="logout-badge">✅ Vous êtes déconnecté</div>
+
+    <script src="{% static 'js/script.js'%}"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const toasts = document.querySelectorAll('.glass-toast');
+    
+    toasts.forEach(toast => {
+        // 1. Déclencher l'animation d'entrée
+        // Petit délai pour s'assurer que le rendu est fait
+        setTimeout(() => {
+            toast.classList.add('show-toast');
+        }, 100);
+
+        // 2. Prévoir la sortie automatique après 5 secondes
+        setTimeout(() => {
+            removeToast(toast);
+        }, 5000);
+    });
+});
+
+// Fonction pour fermer manuellement
+function closeToast(button) {
+    const toast = button.closest('.glass-toast');
+    removeToast(toast);
+}
+
+// Fonction de suppression avec animation de sortie
+function removeToast(toast) {
+    // Ajoute la classe qui fait glisser vers la droite
+    toast.classList.add('hide-toast');
+    toast.classList.remove('show-toast');
+
+    // Attend la fin de l'animation CSS (0.5s) avant de supprimer du DOM
+    toast.addEventListener('transitionend', function() {
+        toast.remove();
+    });
+}
+let currentIndex = 0;
+const slides = document.querySelectorAll('.slider-item');
+const totalSlides = slides.length;
+
+function updateSlider() {
+    if (totalSlides === 0) return;
+
+    // 1. Nettoyage des classes
+    slides.forEach(slide => {
+        slide.classList.remove('active', 'prev', 'next');
+    });
+
+    // 2. Définition des indices (Circulaire)
+    // L'index actuel
+    const activeSlide = slides[currentIndex];
+    
+    // L'index précédent (si index est 0, on retourne au dernier)
+    const prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    const prevSlide = slides[prevIndex];
+    
+    // L'index suivant (si on est au dernier, on retourne à 0)
+    const nextIndex = (currentIndex + 1) % totalSlides;
+    const nextSlide = slides[nextIndex];
+
+    // 3. Attribution des classes CSS
+    activeSlide.classList.add('active');
+    
+    // On n'ajoute prev/next que s'il y a plus d'1 slide
+    if (totalSlides > 1) {
+        prevSlide.classList.add('prev');
+        nextSlide.classList.add('next');
+    }
+}
+
+function nextSlide() {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlider();
+}
+
+function prevSlide() {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateSlider();
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    updateSlider();
+    // Rotation automatique toutes les 4 secondes
+    setInterval(nextSlide, 4000);
+});
+</script>
+
+    <script>
+        window.gtranslateSettings = {
+            "default_language": "fr", // Langue de base de ton site
+            "detect_browser_language": true, // Détecte la langue du visiteur auto
+            "languages": ["fr", "en"], // Les langues que tu veux proposer (ici juste FR et EN)
+            "wrapper_selector": ".gtranslate_wrapper",
+            "alt_flags": {
+                "en": "usa"
+            }, // Optionnel : utilise le drapeau USA pour l'anglais
+            "flag_style": "3d" // Style des drapeaux (2d ou 3d)
+        }
+    </script>
+    <script>
+class ElectricBorderAnimation {
+    // MODIFICATION ICI : target peut être un ID (string) ou un Élément HTML
+    constructor(target, options = {}) {
+        if (window.innerWidth < 768) return; 
+        // -----------------------------
+
+    // ... le reste de tes fonctions (random, noise2D, animate...) ...
+
+        this.container = typeof target === 'string' ? document.getElementById(target) : target;
+        if (!this.container) return;
+        
+        this.canvas = this.container.querySelector('.eb-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.color = options.color || '#00D2FF';
+        this.speed = options.speed || 1;
+        this.chaos = options.chaos || 0.12;
+        this.borderRadius = options.borderRadius || 24;
+        
+        this.container.style.setProperty('--electric-border-color', this.color);
+
+        this.time = 0;
+        this.lastTime = 0;
+        
+        this.octaves = 10;
+        this.lacunarity = 1.6;
+        this.gain = 0.7;
+        this.frequency = 10;
+        this.displacement = 60;
+        this.borderOffset = 60;
+
+        this.resizeObserver = new ResizeObserver(() => this.updateSize());
+        this.resizeObserver.observe(this.container);
+        this.updateSize();
+        this.animate(0);
+    }
+
+    random(x) { return (Math.sin(x * 12.9898) * 43758.5453) % 1; }
+
+    noise2D(x, y) {
+        const i = Math.floor(x); const j = Math.floor(y);
+        const fx = x - i; const fy = y - j;
+        const a = this.random(i + j * 57); const b = this.random(i + 1 + j * 57);
+        const c = this.random(i + (j + 1) * 57); const d = this.random(i + 1 + (j + 1) * 57);
+        const ux = fx * fx * (3.0 - 2.0 * fx); const uy = fy * fy * (3.0 - 2.0 * fy);
+        return a * (1 - ux) * (1 - uy) + b * ux * (1 - uy) + c * (1 - ux) * uy + d * ux * uy;
+    }
+
+    octavedNoise(x, time, seed) {
+        let y = 0; let amplitude = this.chaos; let frequency = this.frequency;
+        for (let i = 0; i < this.octaves; i++) {
+            y += amplitude * this.noise2D(frequency * x + seed * 100, time * frequency * 0.3);
+            frequency *= this.lacunarity; amplitude *= this.gain;
+        }
+        return y;
+    }
+
+    getRoundedRectPoint(t, width, height, radius) {
+        const left = this.borderOffset; const top = this.borderOffset;
+        const straightW = width - 2 * radius; const straightH = height - 2 * radius;
+        const cornerArc = (Math.PI * radius) / 2;
+        const totalPerimeter = 2 * straightW + 2 * straightH + 4 * cornerArc;
+        const distance = t * totalPerimeter;
+        let acc = 0;
+
+        const getCorner = (cx, cy, r, sa, ea, p) => ({ x: cx + r * Math.cos(sa + p * ea), y: cy + r * Math.sin(sa + p * ea) });
+
+        if (distance <= acc + straightW) return { x: left + radius + (distance - acc), y: top };
+        acc += straightW;
+        if (distance <= acc + cornerArc) return getCorner(left + width - radius, top + radius, radius, -Math.PI/2, Math.PI/2, (distance - acc)/cornerArc);
+        acc += cornerArc;
+        if (distance <= acc + straightH) return { x: left + width, y: top + radius + (distance - acc) };
+        acc += straightH;
+        if (distance <= acc + cornerArc) return getCorner(left + width - radius, top + height - radius, radius, 0, Math.PI/2, (distance - acc)/cornerArc);
+        acc += cornerArc;
+        if (distance <= acc + straightW) return { x: left + width - radius - (distance - acc), y: top + height };
+        acc += straightW;
+        if (distance <= acc + cornerArc) return getCorner(left + radius, top + height - radius, Math.PI/2, Math.PI/2, (distance - acc)/cornerArc);
+        acc += cornerArc;
+        if (distance <= acc + straightH) return { x: left, y: top + height - radius - (distance - acc) };
+        acc += straightH;
+        return getCorner(left + radius, top + radius, radius, Math.PI, Math.PI/2, (distance - acc)/cornerArc);
+    }
+
+    updateSize() {
+        const rect = this.container.getBoundingClientRect();
+        this.width = rect.width + this.borderOffset * 2;
+        this.height = rect.height + this.borderOffset * 2;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.canvas.width = this.width * dpr;
+        this.canvas.height = this.height * dpr;
+        this.canvas.style.width = `${this.width}px`;
+        this.canvas.style.height = `${this.height}px`;
+        this.ctx.scale(dpr, dpr);
+    }
+
+    animate(currentTime) {
+        if (!this.lastTime) this.lastTime = currentTime;
+        const deltaTime = (currentTime - this.lastTime) / 1000;
+        this.time += deltaTime * this.speed;
+        this.lastTime = currentTime;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.scale(dpr, dpr);
+        this.ctx.strokeStyle = this.color;
+        this.ctx.lineWidth = 1.5;
+        this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
+        
+        const cW = this.width - 2 * this.borderOffset;
+        const cH = this.height - 2 * this.borderOffset;
+        const r = Math.min(this.borderRadius, Math.min(cW, cH) / 2);
+        const perimeter = 2 * (cW + cH) + 2 * Math.PI * r;
+        const count = Math.floor(perimeter / 2);
+
+        this.ctx.beginPath();
+        for (let i = 0; i <= count; i++) {
+            const p = i / count;
+            const pt = this.getRoundedRectPoint(p, cW, cH, r);
+            const xN = this.octavedNoise(p * 8, this.time, 0);
+            const yN = this.octavedNoise(p * 8, this.time, 1);
+            const x = pt.x + xN * this.displacement;
+            const y = pt.y + yN * this.displacement;
+            if (i === 0) this.ctx.moveTo(x, y); else this.ctx.lineTo(x, y);
+        }
+        this.ctx.closePath();
+        this.ctx.stroke();
+        requestAnimationFrame((t) => this.animate(t));
+    }
+}
+
+// --- INITIALISATION AUTOMATIQUE SUR TOUTES LES CARTES ---
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. On sélectionne toutes les cartes
+    const cards = document.querySelectorAll('.team-card');
+    
+    // 2. On boucle pour appliquer l'effet à chacune
+    cards.forEach(card => {
+        new ElectricBorderAnimation(card, {
+            color: '#D4AF37', // Doré
+            speed: 1,
+            chaos: 0.1,       // Un peu moins de chaos pour rester lisible
+            borderRadius: 20  // Arrondi de la carte
+        });
+    });
+});
+</script>
+
+
+
+</body>
+
+</html>

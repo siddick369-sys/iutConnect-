@@ -1,0 +1,224 @@
+{% load static %}
+<!doctype html>
+<html lang="fr" data-theme="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Donner un avis</title>
+    <link rel="stylesheet" href="{% static 'css/avis.css'%}" />
+
+    <script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer></script>
+
+</head>
+
+<body>
+
+    <div class="gtranslate_wrapper"></div>
+    
+
+
+    <!-- Background blobs (léger) -->
+    <div class="liquid-bg" aria-hidden="true">
+        <span class="blob b1"></span>
+        <span class="blob b2"></span>
+        <span class="blob b3"></span>
+    </div>
+        <!-- Spinner -->
+    <div id="spinner">
+        <div class="neon-spinner">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+    </div>
+
+
+    <header class="topbar">
+        <div class="brand">
+            <span class="dot"></span>
+            <strong>Avis</strong>
+            <span class="muted">• feedback</span>
+        </div>
+
+        <div class="topbar-actions">
+            <button class="icon-btn" id="themeToggle" type="button" aria-label="Changer de thème">
+        <span id="themeIcon">🌙</span>
+      </button>
+            <a class="ghost-link" href="index.html">Retour</a>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section class="hero">
+            <h1>Ton avis nous aide à améliorer l’application</h1>
+            <p class="muted">
+                Donne une note, puis décris rapidement ce qui t’a plu ou ce qu’on doit corriger.
+            </p>
+        </section>
+
+        <section class="card fx-card" aria-label="Formulaire d'avis">
+            <div class="card-head">
+                <div>
+                    <h2>Formulaire d’avis</h2>
+                    <p class="muted small">Temps estimé : 30 secondes</p>
+                </div>
+                <span class="chip" id="statusChip">Prêt</span>
+            </div>
+
+            <form id="reviewForm" novalidate>
+                <!-- Rating -->
+                <div class="field">
+                    <label class="label">Note</label>
+
+                    <div class="rating" role="radiogroup" aria-label="Choisir une note">
+                        <input type="radio" name="rating" id="r5" value="5" />
+                        <label for="r5" title="5/5">★</label>
+
+                        <input type="radio" name="rating" id="r4" value="4" />
+                        <label for="r4" title="4/5">★</label>
+
+                        <input type="radio" name="rating" id="r3" value="3" />
+                        <label for="r3" title="3/5">★</label>
+
+                        <input type="radio" name="rating" id="r2" value="2" />
+                        <label for="r2" title="2/5">★</label>
+
+                        <input type="radio" name="rating" id="r5" value="1" />
+                        <label for="r1" title="1/5">★</label>
+                    </div>
+
+                    <div class="rating-meta">
+                        <span class="muted small" id="ratingText">Aucune note</span>
+                        <span class="emoji" id="ratingEmoji">🙂</span>
+                    </div>
+                    <p class="hint">Astuce : sur mobile, tu peux glisser/taper sur les étoiles.</p>
+                </div>
+
+                <div class="grid2">
+                    <!-- Type -->
+                    <div class="field">
+                        <label class="label" for="kind">Type d’avis</label>
+                        <select id="kind" name="kind" class="input">
+              <option value="suggestion">Suggestion</option>
+              <option value="bug">Bug</option>
+              <option value="experience">Expérience utilisateur</option>
+              <option value="autre">Autre</option>
+            </select>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="field">
+                        <label class="label" for="email">Email (optionnel)</label>
+                        <input id="email" name="email" class="input" type="email" placeholder="ex: toi@gmail.com" />
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <div class="field">
+                    <label class="label" for="title">Titre</label>
+                    <input id="title" name="title" class="input" type="text" maxlength="60" placeholder="Ex: Super interface, mais…" required />
+                    <div class="meta-line">
+                        <span class="error" id="titleErr"></span>
+                        <span class="muted small" id="titleCount">0/60</span>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="field">
+                    <label class="label" for="message">Message</label>
+                    <textarea id="message" name="message" class="input" rows="5" minlength="10" maxlength="700" placeholder="Décris ton avis (min 10 caractères)…" required></textarea>
+                    <div class="meta-line">
+                        <span class="error" id="msgErr"></span>
+                        <span class="muted small" id="msgCount">0/700</span>
+                    </div>
+                </div>
+
+                <!-- Consent -->
+                <div class="field row">
+                    <input id="consent" type="checkbox" required />
+                    <label for="consent" class="small">
+            J’accepte d’être recontacté si nécessaire (facultatif mais utile).
+          </label>
+                </div>
+
+                <!-- Actions -->
+                <div class="actions">
+                    <button class="btn btn-ghost" id="saveDraft" type="button">Sauvegarder brouillon</button>
+                    <button class="btn" id="submitBtn" type="submit">Envoyer l’avis</button>
+                </div>
+
+                <p class="muted small footnote">
+                    Tes données ne sont utilisées que pour améliorer le service.
+                </p>
+            </form>
+        </section>
+
+        <section class="card info">
+            <h3>Exemples d’avis utiles</h3>
+            <ul class="list">
+                <li>“Sur mobile, la page X est lente après 10 secondes.”</li>
+                <li>“J’aimerais un bouton pour télécharger le PDF.”</li>
+                <li>“Le menu burger ne s’affiche pas sur Android 10.”</li>
+            </ul>
+        </section>
+    </main>
+<div id="glassModalOverlay">
+    <div class="glass-modal-box">
+        <div id="glassModalMessage" class="glass-modal-text"></div>
+        <button class="glass-modal-btn" onclick="closeGlassModal()">Compris</button>
+    </div>
+</div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="{% static 'js/avis.js'%}"></script>
+    
+
+    <script>
+        window.gtranslateSettings = {
+            "default_language": "fr", // Langue de base de ton site
+            "detect_browser_language": true, // Détecte la langue du visiteur auto
+            "languages": ["fr", "en"], // Les langues que tu veux proposer (ici juste FR et EN)
+            "wrapper_selector": ".gtranslate_wrapper",
+            "alt_flags": {
+                "en": "usa"
+            }, // Optionnel : utilise le drapeau USA pour l'anglais
+            "flag_style": "3d" // Style des drapeaux (2d ou 3d)
+        }
+    </script>
+
+
+<script>
+// Fonctions globales pour le Modal
+function showGlassModal(message, isSuccess = false) {
+    const overlay = document.getElementById('glassModalOverlay');
+    const msgBox = document.getElementById('glassModalMessage');
+    const btn = overlay.querySelector('.glass-modal-btn');
+    
+    msgBox.innerText = message;
+    
+    if (!isSuccess) {
+        btn.classList.add('error'); // Bouton rouge si insulte/spam
+    } else {
+        btn.classList.remove('error');
+    }
+    
+    overlay.classList.add('show');
+}
+
+function closeGlassModal() {
+    document.getElementById('glassModalOverlay').classList.remove('show');
+}
+
+
+        window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('spinner').style.display = 'none';
+    }, 1000);
+});
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,601 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IUT Connect+ | Connexion</title>
+    <link rel="stylesheet" href="{% static 'css/login.css'%}">
+
+    <script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* --- MODAL D’ALERTE GLASS EFFECT --- */
+.alert-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+/* --- CONTAINER --- */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: none; /* Laisse passer les clics à travers le vide */
+}
+
+/* --- LE TOAST (Carte) --- */
+.glass-toast {
+    pointer-events: auto;
+    min-width: 300px;
+    max-width: 350px;
+    background: rgba(255, 255, 255, 0.1); /* Transparence */
+    backdrop-filter: blur(15px);          /* Effet de flou (Glass) */
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 4px solid; /* La couleur change selon le type */
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: #333;
+    font-family: 'Poppins', sans-serif; /* Ou ta police actuelle */
+    position: relative;
+    overflow: hidden;
+    
+    /* Animation d'entrée */
+    transform: translateX(120%);
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.glass-toast.show-toast {
+    transform: translateX(0%);
+}
+
+.glass-toast.hide-toast {
+    transform: translateX(130%); /* Sortie vers la droite */
+    opacity: 0;
+}
+
+/* --- COULEURS & VARIANTES --- */
+/* Succès (Vert Néon) */
+.toast-success {
+    border-left-color: #00E676;
+    background: linear-gradient(90deg, rgba(0, 230, 118, 0.1), rgba(255, 255, 255, 0.05));
+}
+.toast-success .toast-title { color: #00C853; }
+
+/* Danger/Erreur (Rouge/Orange Néon) */
+.toast-error, .toast-danger {
+    border-left-color: #FF3D00;
+    background: linear-gradient(90deg, rgba(255, 61, 0, 0.1), rgba(255, 255, 255, 0.05));
+}
+.toast-danger .toast-title { color: #D50000; }
+
+/* Info (Bleu Futuriste) */
+.toast-info {
+    border-left-color: #00B0FF;
+    background: linear-gradient(90deg, rgba(0, 176, 255, 0.1), rgba(255, 255, 255, 0.05));
+}
+.toast-info .toast-title { color: #0091EA; }
+
+/* Warning (Doré) */
+.toast-warning {
+    border-left-color: #FFD600;
+    background: linear-gradient(90deg, rgba(255, 214, 0, 0.1), rgba(255, 255, 255, 0.05));
+}
+.toast-warning .toast-title { color: #FBC02D; }
+
+/* --- CONTENU --- */
+.toast-icon { font-size: 1.2rem; }
+.toast-content { flex: 1; display: flex; flex-direction: column; }
+.toast-title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.toast-message { font-size: 0.85rem; color: #555; line-height: 1.3; }
+
+/* --- BOUTON FERMER --- */
+.toast-close {
+    background: none; border: none; font-size: 1.2rem; cursor: pointer;
+    color: #999; line-height: 1; padding: 0; margin: 0;
+    transition: color 0.3s;
+}
+.toast-close:hover { color: #333; }
+
+/* --- PROGRESS BAR (Timer) --- */
+.toast-progress {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba(255,255,255,0.3);
+}
+.toast-progress::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: currentColor; /* Prend la couleur du texte */
+    opacity: 0.5;
+    animation: progressLinear 5s linear forwards;
+}
+
+/* Couleur de la barre selon le type */
+.toast-success .toast-progress::before { background: #00E676; }
+.toast-danger .toast-progress::before { background: #FF3D00; }
+.toast-info .toast-progress::before { background: #00B0FF; }
+.toast-warning .toast-progress::before { background: #FFD600; }
+
+@keyframes progressLinear {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 480px) {
+    .toast-container {
+        right: 10px;
+        left: 10px; /* Centre sur mobile */
+        top: 10px;
+    }
+    .glass-toast {
+        min-width: auto;
+        width: 100%;
+    }
+}
+.alert-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    border-radius: 15px;
+    padding: 30px 40px;
+    color: #fff;
+    text-align: center;
+    width: 320px;
+    font-family: "Poppins", sans-serif;
+    animation: popUp 0.4s ease;
+    backdrop-filter: blur(15px);
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+}
+
+.alert-card h3 {
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.alert-card p {
+    font-size: 0.95em;
+    opacity: 0.9;
+}
+
+.alert-btn {
+    margin-top: 20px;
+    padding: 10px 25px;
+    border: none;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: 600;
+}
+
+.alert-btn:hover {
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+    transform: scale(1.05);
+}
+
+@keyframes popUp {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+    <div class="gtranslate_wrapper"></div>
+
+
+    <!-- SPINNER -->
+    <div id="spinner">
+        <div class="neon-spinner">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+    </div>
+
+    <!-- Vidéo de fond -->
+    <video autoplay muted loop playsinline class="bg-video">
+    <source src="{% static 'video/cinematic-bg.mp4'%}" type="video/mp4">
+  </video>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">IUT <span>Connect+</span></div>
+        <ul class="nav-links">
+        <div class="hamburger" id="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </nav>
+<!-- Formulaire principal -->
+<div class="login-container">
+    <form class="login-card" id="loginForm" method="POST" action="{% url 'connexion' %}" autocomplete="off">
+        {% csrf_token %}
+        <h2>Connexion</h2>
+
+        <div class="input-group">
+            <label for="matricule">Matricule</label>
+            <div class="input-icon">
+                <input type="text" id="matricule" name="matricule" placeholder="Ex : 24GEL01IU" required>
+                <i class="icon">🪪</i>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="nom_prenom">Nom & Prénom</label>
+            <div class="input-icon">
+                <input type="text" id="nom_prenom" name="nom_prenom" placeholder="Ex : ABDOUL NASSIR" required>
+                <i class="icon">👤</i>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="mention">Mention</label>
+            <div class="input-icon">
+                <input type="text" id="mention" name="mention" placeholder="Ex : GIM" required>
+                <i class="icon">🎓</i>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="telephone">Téléphone</label>
+            <div class="input-icon">
+                <input type="tel" id="telephone" name="telephone" placeholder="Ex : 6XXXXXXXX" required pattern="^6\d{8}$">
+                <i class="icon">📱</i>
+            </div>
+        </div>
+
+        <button type="submit" class="btn">Se connecter</button>
+        <p class="signup-text">Pas de compte ? <a href="signup.html">Inscrivez-vous</a></p>
+    </form>
+</div>
+<!-- MODAL D’ALERTE -->
+<div id="alertModal" class="alert-modal">
+    <div class="alert-card" id="alertCard">
+        <h3 id="alertTitle">Message</h3>
+        <p id="alertMessage">Contenu du message</p>
+        <button id="alertClose" class="alert-btn">OK</button>
+    </div>
+</div>
+
+    <p class="copy">© 2025 IUT Connect+</p>
+    <!-- MODAL PROFIL -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-bg"></div>
+                <img src="/assets/images/default-avatar.svg" alt="Profil" class="profile-avatar">
+                <h3 id="profileName">Nom de l’utilisateur</h3>
+                <p id="profileEmail">email@example.com</p>
+                <p id="profileMatricule">Matricule : IUT0000</p>
+            </div>
+            <div class="profile-footer">
+                <button id="logoutBtn" class="btn-logout">Déconnexion</button>
+                <button id="closeProfile" class="btn-close">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMATION -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-box">
+            <p>Voulez-vous vraiment vous déconnecter ?</p>
+            <div class="confirm-actions">
+                <button id="confirmYes" class="btn-confirm yes">Oui</button>
+                <button id="confirmNo" class="btn-confirm no">Non</button>
+            </div>
+        </div>
+    </div>
+    <!-- BADGE DE DÉCONNEXION -->
+    <div id="logoutBadge" class="logout-badge">✅ Vous êtes déconnecté</div>
+    {% if messages %}
+<div class="toast-container">
+    {% for message in messages %}
+    <div class="glass-toast toast-{{ message.tags }} show-toast">
+        <div class="toast-icon">
+            {% if message.tags == 'success' %}✨
+            {% elif message.tags == 'error' or message.tags == 'danger' %}⚠️
+            {% elif message.tags == 'warning' %}⚡
+            {% else %}ℹ️{% endif %}
+        </div>
+        <div class="toast-content">
+            <span class="toast-title">
+                {% if message.tags == 'success' %}Succès
+                {% elif message.tags == 'error' or message.tags == 'danger' %}Erreur
+                {% elif message.tags == 'warning' %}Attention
+                {% else %}Info{% endif %}
+            </span>
+            <span class="toast-message">{{ message }}</span>
+        </div>
+        <button class="toast-close" onclick="closeToast(this)">×</button>
+        <div class="toast-progress"></div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+    <script src="{% static 'js/script.js'%}"></script>
+    <script src="{% static 'js/login.js'%}"></script>
+
+    <script>
+        window.gtranslateSettings = {
+            "default_language": "fr", // Langue de base de ton site
+            "detect_browser_language": true, // Détecte la langue du visiteur auto
+            "languages": ["fr", "en"], // Les langues que tu veux proposer (ici juste FR et EN)
+            "wrapper_selector": ".gtranslate_wrapper",
+            "alt_flags": {
+                "en": "usa"
+            }, // Optionnel : utilise le drapeau USA pour l'anglais
+            "flag_style": "3d" // Style des drapeaux (2d ou 3d)
+        }
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("loginForm");
+
+    // --- Crée un modal d’alerte glass ---
+    function showGlassModal(message, success = false) {
+        const modal = document.createElement("div");
+        modal.className = "glass-alert";
+        modal.innerHTML = `
+            <div class="glass-card ${success ? 'success' : 'error'}">
+                <h3>${success ? '✅ Connexion réussie' : '❌ Erreur'}</h3>
+                <p>${message}</p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        setTimeout(() => modal.classList.add("show"), 50);
+        setTimeout(() => {
+            modal.classList.remove("show");
+            setTimeout(() => modal.remove(), 300);
+        }, success ? 2500 : 3000);
+    }
+
+    // --- Animation confettis ---
+    function lancerConfettisEtFeux() {
+        const duration = 2 * 1000;
+        const end = Date.now() + duration;
+
+        (function frame() {
+            confetti({
+                particleCount: 6,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+            });
+            confetti({
+                particleCount: 6,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+            });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        })();
+    }
+
+    form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    
+    // Validation du téléphone
+    const tel = formData.get('telephone');
+    if (!/^6\d{8}$/.test(tel.trim())) {
+        showGlassModal("Le numéro de téléphone doit commencer par 6 et comporter 9 chiffres.");
+        return;
+    }
+
+    // Validation des champs vides
+    if (!formData.get('matricule') || !tel) {
+        showGlassModal("Veuillez remplir tous les champs.");
+        return;
+    }
+
+    try {
+        const response = await fetch(form.action, {
+            method: "POST",
+            body: formData
+        });
+
+        // 1. On vérifie si l'URL a changé (Indice fort de redirection)
+        // Si l'URL finale n'est pas celle de la connexion, c'est qu'on est sur l'accueil
+        const isRedirected = response.redirected || response.url.includes('/accueil'); 
+
+        if (isRedirected) {
+            handleSuccess();
+            return;
+        }
+
+        // 2. Si pas de redirection évidente, on analyse le contenu HTML
+        const htmlText = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, "text/html");
+
+        // --- C'EST ICI LA CORRECTION ---
+        
+        // A. On regarde d'abord si on trouve un toast de SUCCÈS (vert)
+        // Cela arrive si fetch a chargé la page d'accueil sans qu'on détecte la redirection
+        const successMessage = doc.querySelector('.toast-success .toast-message');
+        
+        if (successMessage) {
+            handleSuccess(successMessage.innerText.trim());
+            return;
+        }
+
+        // B. Sinon, on cherche un toast d'ERREUR (rouge/jaune)
+        const errorMessage = doc.querySelector('.toast-error .toast-message') || 
+                             doc.querySelector('.toast-warning .toast-message') ||
+                             doc.querySelector('.toast-message'); // Fallback
+
+        const msg = errorMessage ? errorMessage.innerText.trim() : "Identifiants incorrects.";
+        showGlassModal(msg); // Affiche le modal standard (Erreur)
+
+    } catch (error) {
+        console.error(error);
+        showGlassModal("Erreur technique. Réessayez plus tard.");
+    }
+    
+    // Fonction utilitaire pour gérer le succès
+    function handleSuccess(msg = "Bienvenue sur IUT Connect+ 🎉") {
+        lancerConfettisEtFeux();
+        showGlassModal(msg, true); // true = Style succès (Vert)
+        setTimeout(() => {
+            // On force la redirection vers l'accueil
+            // Si response.url est déjà l'accueil, ça rechargera juste la page, ce qui est bien
+            window.location.href = "/accueil/"; 
+        }, 2500);
+    }
+});
+    
+
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const toasts = document.querySelectorAll('.glass-toast');
+    
+    toasts.forEach(toast => {
+        // 1. Déclencher l'animation d'entrée
+        // Petit délai pour s'assurer que le rendu est fait
+        setTimeout(() => {
+            toast.classList.add('show-toast');
+        }, 100);
+
+        // 2. Prévoir la sortie automatique après 5 secondes
+        setTimeout(() => {
+            removeToast(toast);
+        }, 5000);
+    });
+});
+
+// Fonction pour fermer manuellement
+function closeToast(button) {
+    const toast = button.closest('.glass-toast');
+    removeToast(toast);
+}
+
+// Fonction de suppression avec animation de sortie
+function removeToast(toast) {
+    // Ajoute la classe qui fait glisser vers la droite
+    toast.classList.add('hide-toast');
+    toast.classList.remove('show-toast');
+
+    // Attend la fin de l'animation CSS (0.5s) avant de supprimer du DOM
+    toast.addEventListener('transitionend', function() {
+        toast.remove();
+    });
+}
+</script>
+
+<style>
+/* --- Style du modal ALERTE (Sans Flou / Net) --- */
+.glass-alert {
+    position: fixed;
+    inset: 0;
+    /* Fond noir semi-transparent pour assombrir le site derrière (sans flou) */
+    background: rgba(0, 0, 0, 0.7); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.glass-alert.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.glass-card {
+    /* Fond SOLIDE et SOMBRE (car pas de flou) pour la lisibilité */
+    background: #1a1a2e; 
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Bordure subtile */
+    border-radius: 12px;
+    padding: 25px 40px;
+    text-align: center;
+    color: #fff;
+    /* Ombre portée nette pour détacher le modal du fond */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); 
+    transform: translateY(20px) scale(0.95);
+    animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    min-width: 300px;
+}
+
+.glass-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.glass-card p {
+    color: #ccc;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Bordure colorée à gauche pour indiquer le statut */
+.glass-card.error {
+    border-left: 5px solid #ff4b2b;
+}
+
+.glass-card.success {
+    border-left: 5px solid #00c6ff;
+}
+
+.glass-card.info {
+    border-left: 5px solid #D4AF37; /* Or */
+}
+
+@keyframes popUp {
+    from { 
+        transform: translateY(20px) scale(0.95); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateY(0) scale(1); 
+        opacity: 1; 
+    }
+}
+</style>
+</body>
+
+</html>

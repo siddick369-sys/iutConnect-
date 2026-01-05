@@ -1,0 +1,157 @@
+/* === Fond général === */
+
+body,
+.content-wrapper {
+    background: #cbbba0 !important;
+    /* beige foncé élégant */
+    color: #0a0f2d !important;
+    /* bleu nuit */
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+}
+
+
+/* static/css/admin_custom.css */
+
+
+/* Cible l'image du logo dans la barre latérale */
+
+.brand-link .brand-image {
+    max-height: 40px !important;
+    /* Ajuste ce chiffre (ex: 30px, 35px) */
+    width: auto !important;
+    /* Garde les proportions */
+    opacity: 1 !important;
+    /* Assure qu'il est bien visible */
+    margin-top: 2px;
+    /* Petit ajustement vertical si besoin */
+}
+
+
+/* Optionnel : Si le logo est trop collé au texte */
+
+.brand-link {
+    display: flex;
+    align-items: center;
+}
+
+
+/* === Bordures futuristes === */
+
+.card,
+.module {
+    border: 2px solid transparent;
+    border-image: linear-gradient(45deg, #d4af37, #1a1a40) 1;
+    border-radius: 12px;
+    transition: all 0.4s ease-in-out;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+}
+
+.card:hover {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+    transform: scale(1.02);
+}
+
+
+/* === Boutons effet liquide === */
+
+button,
+.button,
+input[type=submit] {
+    position: relative;
+    background: linear-gradient(135deg, #1a1a40, #d4af37);
+    border: none;
+    color: #fff !important;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: skewY(45deg);
+    transition: 0.5s;
+}
+
+button:hover::before {
+    top: 200%;
+}
+
+button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+}
+
+
+/* === Cercle “respirant” en arrière-plan === */
+
+body::before {
+    content: "";
+    position: fixed;
+    width: 900px;
+    height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.4), transparent 70%);
+    top: 20%;
+    left: -100px;
+    animation: breathing 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(26, 26, 64, 0.3), transparent 70%);
+    bottom: 10%;
+    right: -120px;
+    pointer-events: none;
+    animation: breathing 8s ease-in-out infinite reverse;
+}
+
+@keyframes breathing {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+}
+
+
+/* === Liens et titres === */
+
+a,
+.module h2 {
+    color: #1a1a40 !important;
+    font-weight: 600;
+}
+
+a:hover {
+    color: #d4af37 !important;
+}
+
+
+/* === Scrollbar stylisée === */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #1a1a40, #d4af37);
+    border-radius: 10px;
+}

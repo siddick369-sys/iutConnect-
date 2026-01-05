@@ -1,0 +1,9 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Accès Refusé{% endblock %}
+{% block code %}403{% endblock %}
+{% block message_title %}Zone Restreinte 🔒{% endblock %}
+{% block message_content %}
+    Désolé, vous n'avez pas les autorisations nécessaires pour accéder à cette ressource.
+    (Accès réservé Niveau 2 ou Admin).
+{% endblock %}

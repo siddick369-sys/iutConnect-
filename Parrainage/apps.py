@@ -1,0 +1,8 @@
+from django.apps import AppConfig
+
+
+class ParrainageConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'Parrainage'
+    def ready(self):
+        import Parrainage.signals
