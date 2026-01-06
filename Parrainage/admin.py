@@ -32,7 +32,7 @@ class EtudiantNiveau1Resource(resources.ModelResource):
     parcours = fields.Field(attribute='parcours', column_name='PARCOURS')
     niveau = fields.Field(attribute='niveau', column_name='Niveau', widget=CharWidget())
     annee_academique = fields.Field(attribute='annee_academique', column_name='Année académique', widget=CharWidget())
-    actif = fields.Field(attribute='actif', column_name='Actif', widget=CharWidget())
+    #actif = fields.Field(attribute='actif', column_name='Actif', widget=CharWidget())
 
     class Meta:
         model = EtudiantNiveau1
@@ -56,7 +56,7 @@ class EtudiantNiveau2Resource(resources.ModelResource):
     parcours = fields.Field(attribute='parcours', column_name='PARCOURS')
     niveau = fields.Field(attribute='niveau', column_name='Niveau', widget=CharWidget())
     annee_academique = fields.Field(attribute='annee_academique', column_name='Année académique', widget=CharWidget())
-    actif = fields.Field(attribute='actif', column_name='Actif', widget=CharWidget())
+    #actif = fields.Field(attribute='actif', column_name='Actif', widget=CharWidget())
 
     class Meta:
         model = EtudiantNiveau2
