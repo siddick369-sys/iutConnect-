@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 urlpatterns = [
 
-    path('admin/', admin.site.urls),
+    path('k9fx-gorgore-admin-iut/', admin.site.urls),
     
     path('', include('Parrainage.urls')),
     
@@ -50,3 +52,8 @@ handler404 = custom_page_not_found
 handler500 = custom_server_error
 handler403 = custom_permission_denied
 handler400 = custom_bad_request
+
+
+
+
+urlpatterns += staticfiles_urlpatterns()

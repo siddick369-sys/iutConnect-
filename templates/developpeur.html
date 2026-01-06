@@ -6,192 +6,635 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Technique | IUT Connect+</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/ElectricBorder.css' %}">
     
     <style>
         /* --- VARIABLES & RESET --- */
         :root {
-            --bg-dark: #070a12;
+            --bg-dark: #0a0e1a;
             --gold: #D4AF37;
             --blue: #00C2FF;
+            --neon-pink: #ff00ff;
             --text: #e0e0e0;
-            --card-bg: rgba(23, 25, 35, 0.7); /* Plus opaque pour lisibilité sur les étoiles */
+            --card-bg: rgba(15, 18, 30, 0.85);
             --border: rgba(255, 255, 255, 0.1);
+            --glow: rgba(0, 194, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text);
             font-family: 'Montserrat', sans-serif;
-            margin: 0; padding: 0;
             overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* --- ANIMATION DE BACKGROUND 3D MOBILE FRIENDLY --- */
+        #nebula-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(ellipse at 50% 50%, 
+                #0a0e1a 0%, 
+                #070a12 40%, 
+                #050811 70%, 
+                #03050a 100%);
+        }
+
+        .particles-3d {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, var(--blue) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) scale(1);
+                opacity: 0.1;
+            }
+            50% {
+                transform: translate3d(100px, -50px, 0) scale(1.2);
+                opacity: 0.3;
+            }
+        }
+
+        /* --- TYPOGRAPHIE FUTURISTE --- */
+        h1, h2, h3, h4 { 
+            margin: 0; 
+            font-weight: 900;
+        }
+        
+        .section-title {
+            color: transparent;
+            background: linear-gradient(90deg, var(--gold), var(--blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            font-size: 2.2rem;
+            margin: 60px 0 40px;
+            padding-left: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             position: relative;
         }
 
-        /* --- HYPERSPEED CANVAS --- */
-        #hyperspeed {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            opacity: 0.6; /* Réglé pour ne pas gêner la lecture */
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background: linear-gradient(to bottom, var(--gold), var(--blue));
+            border-radius: 2px;
         }
 
-        /* --- TYPOGRAPHIE --- */
-        h1, h2, h3, h4 { margin: 0; }
-        
-        .section-title {
-            color: var(--gold);
-            font-size: 1.8rem;
-            margin: 60px 0 30px;
-            border-left: 4px solid var(--blue);
-            padding-left: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* --- HERO SECTION --- */
+        /* --- HERO SECTION 3D --- */
         .hero {
-            min-height: 80vh;
+            min-height: 90vh;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
             text-align: center;
-            background: radial-gradient(circle at center, transparent 0%, var(--bg-dark) 90%); /* Dégradé pour voir les étoiles */
             padding: 20px;
             position: relative;
             z-index: 1;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 194, 255, 0.1) 0%, transparent 70%);
+            filter: blur(60px);
+            z-index: -1;
+            animation: pulse 8s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.3; }
+            100% { transform: scale(1.2); opacity: 0.6; }
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 4rem;
             margin-bottom: 10px;
-            background: linear-gradient(to right, var(--gold), #fff, var(--blue));
+            background: linear-gradient(45deg, var(--gold), #fff, var(--blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
-            font-weight: 900;
-            letter-spacing: -2px;
+            letter-spacing: -1px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--blue), transparent);
         }
 
         .hero p {
             font-size: 1.2rem;
             color: #aaa;
             max-width: 600px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .hero .subtitle {
+            color: var(--blue);
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero .subtitle::before,
+        .hero .subtitle::after {
+            content: '✦';
+            color: var(--gold);
+            margin: 0 10px;
+            font-size: 0.8rem;
         }
 
         /* --- CONTAINER GLOBAL --- */
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px 80px;
+            position: relative;
+            z-index: 2;
         }
 
-        /* --- CARDS GÉNÉRIQUES (Glassmorphism) --- */
-        .tech-card, .challenge-box, .team-member-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s, border-color 0.3s;
-        }
-
-        .tech-card:hover, .team-member-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--blue);
-            box-shadow: 0 10px 30px rgba(0, 194, 255, 0.1);
-        }
-
-        /* --- GRILLES --- */
+        /* --- TECH CARDS 3D (CIRCLE TRANSFORM) --- */
         .tech-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            perspective: 1000px;
         }
 
-        /* --- STYLE DE LA TEAM --- */
+        .tech-card {
+            background: linear-gradient(145deg, rgba(15, 18, 30, 0.9), rgba(10, 12, 20, 0.9));
+            border: 1px solid rgba(0, 194, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(15px);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .tech-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--gold), var(--blue), var(--neon-pink));
+            z-index: -1;
+            border-radius: 22px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .tech-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Animation des cercles pulsants */
+        .tech-card .pulse-circle {
+            position: absolute;
+            border: 2px solid var(--blue);
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            border-radius: 50%;
+            border-color: transparent;
+        }
+
+        .tech-card:hover .pulse-circle {
+            animation: pulse-circle 1.5s infinite;
+        }
+
+        .tech-card:hover .pulse-circle:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .tech-card:hover .pulse-circle:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        @keyframes pulse-circle {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        .tech-card h3 {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tech-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tech-card li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+            color: #bbb;
+            font-size: 1rem;
+            line-height: 1.5;
+            transition: color 0.3s;
+        }
+
+        .tech-card li::before {
+            content: '▸';
+            color: var(--blue);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .tech-card:hover li {
+            color: #fff;
+        }
+
+        /* --- TEAM CARDS 3D (IMAGE HOVER EFFECT) --- */
         .team-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Cartes un peu plus larges */
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 35px;
         }
 
         .team-member-card {
-            border-top: 3px solid var(--gold); /* Distinction visuelle */
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            height: 450px;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .team-member-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 194, 255, 0.2);
+        }
+
+        .team-image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            transition: all 0.8s ease;
+            overflow: hidden;
+        }
+
+        .team-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.8s ease;
+            filter: brightness(0.9);
+        }
+
+        .team-member-card:hover .team-image {
+            filter: blur(8px) brightness(0.7);
+            transform: scale(1.1);
+        }
+
+        .team-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(to top, rgba(10, 14, 26, 0.95), transparent);
+            z-index: 2;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s ease 0.2s;
+        }
+
+        .team-member-card:hover .team-content {
+            transform: translateY(0);
+            opacity: 1;
         }
 
         .team-member-card h3 {
             color: #fff;
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .team-role {
             color: var(--blue);
             font-size: 0.9rem;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: block;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .team-member-card ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .team-member-card li {
-            position: relative;
-            padding-left: 20px;
-            margin-bottom: 8px;
+        .team-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
             color: #ccc;
             font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        .team-member-card li::before {
-            content: '▹';
-            color: var(--gold);
-            position: absolute;
-            left: 0;
-        }
-
-        /* --- TAGS (Challenges) --- */
-        .challenge-box {
-            border-left: 4px solid var(--gold);
+        .team-member-card:hover .team-details {
+            max-height: 200px;
             margin-bottom: 20px;
+        }
+
+        .team-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease 0.4s;
+        }
+
+        .team-member-card:hover .team-icons {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .team-icons i {
+            color: var(--gold);
+            font-size: 1.2rem;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .team-icons i:hover {
+            color: var(--blue);
+            transform: scale(1.2);
+        }
+
+        /* --- CHALLENGE BOXES --- */
+        .challenge-grid {
+            display: grid;
+            gap: 25px;
+        }
+
+        .challenge-box {
+            background: linear-gradient(145deg, rgba(15, 18, 30, 0.9), rgba(10, 12, 20, 0.9));
+            border-left: 4px solid var(--gold);
             border-radius: 0 16px 16px 0;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
         }
-        .challenge-box h4 { color: #fff; margin-bottom: 10px; font-size: 1.2rem; }
+
+        .challenge-box:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1);
+        }
+
+        .challenge-box h4 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
         .tag {
-            display: inline-block; padding: 4px 10px;
-            background: rgba(212, 175, 55, 0.15); color: var(--gold);
-            border-radius: 4px; font-size: 0.8rem; margin-right: 5px; font-weight: bold;
+            display: inline-block;
+            padding: 5px 12px;
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            border: 1px solid rgba(212, 175, 55, 0.3);
         }
 
-        /* --- BOUTON CV --- */
-        .cta-container { text-align: center; margin-top: 80px; }
-        .btn-cv {
-            display: inline-block; padding: 15px 40px;
-            background: #fff; color: #000; font-weight: 900;
-            text-decoration: none; border-radius: 30px;
+        .challenge-box p {
+            color: #ccc;
+            margin-top: 15px;
+            line-height: 1.6;
         }
 
-        /* Mobile */
+        /* --- BOUTON CV 3D --- */
+        .cta-container {
+            text-align: center;
+            margin-top: 100px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .btn-3d {
+            display: inline-block;
+            padding: 20px 50px;
+            background: linear-gradient(145deg, #0a0e1a, #151a2d);
+            color: #fff;
+            font-weight: 900;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 194, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-3d:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 194, 255, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            background: linear-gradient(145deg, #151a2d, #0a0e1a);
+            border-color: var(--blue);
+        }
+
+        .btn-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+
+        .btn-3d:hover::before {
+            left: 100%;
+        }
+
+        .contact-info {
+            margin-top: 30px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .contact-info a {
+            color: var(--gold);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .contact-info a:hover {
+            color: var(--blue);
+            text-decoration: underline;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 80px;
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.2rem; }
-            .section-title { font-size: 1.5rem; }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .tech-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .team-member-card {
+                height: 400px;
+            }
+            
+            /* Effet tap pour mobile */
+            .tech-card:active {
+                transform: scale(0.95) rotateX(5deg);
+                border-radius: 50%;
+            }
+            
+            .team-member-card:active .team-image {
+                filter: blur(8px) brightness(0.7);
+                transform: scale(1.1);
+            }
+            
+            .team-member-card:active .team-content {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .container {
+                padding: 0 15px 50px;
+            }
+        }
+
+        /* Support pour les préférences de réduction de mouvement */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Background 3D -->
+    <div id="nebula-bg"></div>
+    <div class="particles-3d" id="particles-3d"></div>
 
-    <canvas id="hyperspeed"></canvas>
-
+    <!-- Hero Section -->
     <section class="hero">
-        <p style="color: var(--blue); font-weight: bold; letter-spacing: 2px; margin-bottom: 10px;">PORTFOLIO TECHNIQUE</p>
+        <p class="subtitle">PORTFOLIO TECHNIQUE</p>
         <h1>Alexis Stéphane<br>Bidjebele</h1>
         <p>
             Étudiant en Réseaux & Télécoms - IUT Ngaoundéré.<br>
@@ -199,29 +642,39 @@
         </p>
     </section>
 
+    <!-- Main Content -->
     <div class="container">
-        
+        <!-- Stack Technique -->
         <h2 class="section-title">Stack Technique</h2>
         <div class="tech-grid">
             <div class="tech-card">
-                <h3>⚙️ Backend</h3>
-                <ul style="padding-left: 20px; color: #bbb;">
+                <div class="pulse-circle"></div>
+                <div class="pulse-circle"></div>
+                <div class="pulse-circle"></div>
+                <h3><i class="fas fa-server"></i> Backend</h3>
+                <ul>
                     <li>Python & Django 5</li>
                     <li>PostgreSQL (Prod)</li>
                     <li>Threading Asynchrone</li>
                 </ul>
             </div>
             <div class="tech-card">
-                <h3>🎨 Frontend</h3>
-                <ul style="padding-left: 20px; color: #bbb;">
+                <div class="pulse-circle"></div>
+                <div class="pulse-circle"></div>
+                <div class="pulse-circle"></div>
+                <h3><i class="fas fa-palette"></i> Frontend</h3>
+                <ul>
                     <li>Glassmorphism UI</li>
                     <li>Canvas API (Anim)</li>
                     <li>JavaScript ES6+</li>
                 </ul>
             </div>
             <div class="tech-card">
-                <h3>🛡️ Sécurité</h3>
-                <ul style="padding-left: 20px; color: #bbb;">
+                <div class="pulse-circle"></div>
+                <div class="pulse-circle"></div>
+                <div class="pulse-circle"></div>
+                <h3><i class="fas fa-shield-alt"></i> Sécurité</h3>
+                <ul>
                     <li>Regex Filtering</li>
                     <li>Hachage PBKDF2</li>
                     <li>Protection CSRF/XSS</li>
@@ -229,257 +682,196 @@
             </div>
         </div>
 
+        <!-- Architecture & Équipe -->
         <h2 class="section-title">Architecture & Équipe Backend</h2>
         <div class="team-grid">
-            
             <div class="team-member-card">
-                <h3>ABBA Saidou</h3>
-                <span class="team-role">Architecture + Auth + Rôles</span>
-                <ul>
-                    <li>Mise en place de la structure MVC/MVT (Routes, Controllers, Middlewares).</li>
-                    <li>Système d'authentification complet (Inscription/Connexion via Sessions/JWT).</li>
-                    <li>Gestion des rôles (Admin, Parrain, Filleul) et contrôle d'accès sécurisé.</li>
-                    <li>Formatage des réponses JSON et gestion centralisée des erreurs.</li>
-                </ul>
+                <div class="team-image-container">
+                    <img src="{% static 'images/programmeur.jpeg' %}" 
+                         alt="ABBA Saidou" class="team-image">
+                </div>
+                <div class="team-content">
+                    <h3>ABBA Saidou</h3>
+                    <span class="team-role">Architecture + Auth + Rôles</span>
+                    <div class="team-details">
+                        <p>Mise en place de la structure MVC/MVT (Routes, Controllers, Middlewares). Système d'authentification complet (Inscription/Connexion via Sessions/JWT).</p>
+                    </div>
+                    <div class="team-icons">
+                        <i class="fas fa-code"></i>
+                        <i class="fas fa-key"></i>
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                </div>
             </div>
 
             <div class="team-member-card">
-                <h3>Ibrahima Bapetel</h3>
-                <span class="team-role">Base de Données + Modélisation</span>
-                <ul>
-                    <li>Conception MCD/MLD optimisée (Matricule en Clé Primaire).</li>
-                    <li>Création des tables (Étudiants, Parrainages, Logs) avec contraintes d'intégrité.</li>
-                    <li>Gestion de la cardinalité (1 Parrain → N Filleuls) pour compenser les effectifs.</li>
-                    <li>Écriture des scripts SQL, migrations et indexation pour la performance.</li>
-                </ul>
+                <div class="team-image-container">
+                    <img src="{% static 'images/dev1.jpeg' %}" 
+                         alt="Ibrahima Bapetel" class="team-image">
+                </div>
+                <div class="team-content">
+                    <h3>Ibrahima Bapetel</h3>
+                    <span class="team-role">Base de Données + Modélisation</span>
+                    <div class="team-details">
+                        <p>Conception MCD/MLD optimisée (Matricule en Clé Primaire). Création des tables (Étudiants, Parrainages, Logs) avec contraintes d'intégrité.</p>
+                    </div>
+                    <div class="team-icons">
+                        <i class="fas fa-database"></i>
+                        <i class="fas fa-project-diagram"></i>
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
             </div>
 
             <div class="team-member-card">
-                <h3>Ania Mardochée</h3>
-                <span class="team-role">Algorithme d'Attribution + Admin</span>
-                <ul>
-                    <li>Algorithme d'assignation auto (Priorité : Même filière, Parrain moins chargé).</li>
-                    <li>Gestion de la concurrence (Verrouillage transactionnel SELECT FOR UPDATE).</li>
-                    <li>Endpoints Admin : Force Override, Statistiques par filière, taux de dispo.</li>
-                    <li>Système de logs pour tracer les actions sensibles (Assignation, Modifs).</li>
-                </ul>
+                <div class="team-image-container">
+                    <img src="{% static 'images/dev2.jpeg' %}" 
+                         alt="Ania Mardochée" class="team-image">
+                </div>
+                <div class="team-content">
+                    <h3>Ania Mardochée</h3>
+                    <span class="team-role">Algorithme d'Attribution + Admin</span>
+                    <div class="team-details">
+                        <p>Algorithme d'assignation auto (Priorité : Même filière, Parrain moins chargé). Gestion de la concurrence (Verrouillage transactionnel SELECT FOR UPDATE).</p>
+                    </div>
+                    <div class="team-icons">
+                        <i class="fas fa-robot"></i>
+                        <i class="fas fa-cogs"></i>
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                </div>
             </div>
-
         </div>
 
+        <!-- Défis & Solutions -->
         <h2 class="section-title">Défis & Solutions</h2>
-        
-        <div class="challenge-box">
-            <h4>1. Performance UX (Threading)</h4>
-            <div><span class="tag">Python</span> <span class="tag">Async</span></div>
-            <p style="color:#ccc; margin-top:10px;">L'envoi d'emails bloquait l'interface. Solution : Implémentation de threads pour déporter l'envoi SMTP en arrière-plan.</p>
-        </div>
-
-        <div class="challenge-box">
-            <h4>2. Filtrage Anti-Spam</h4>
-            <div><span class="tag">Regex</span> <span class="tag">Sécurité</span></div>
-            <p style="color:#ccc; margin-top:10px;">Algorithme de détection de "Charabia" et d'insultes via Regex complexes avant même l'envoi au serveur.</p>
-        </div>
-
-        <div class="challenge-box">
-            <h4>3. Optimisation Mobile</h4>
-            <div><span class="tag">JS</span> <span class="tag">Performance</span></div>
-            <p style="color:#ccc; margin-top:10px;">Désactivation automatique du moteur Canvas sur mobile (< 768px) pour préserver la batterie, remplacé par du CSS pur.</p>
-        </div>
-
-        <div class="cta-container">
-            <div class="electric-border" id="btnCV" style="display:inline-block;">
-                <div class="eb-canvas-container"><canvas class="eb-canvas"></canvas></div>
-                <div class="eb-layers">
-                    <div class="eb-glow-1"></div>
-                    <div class="eb-glow-2"></div>
-                    <div class="eb-background-glow"></div>
+        <div class="challenge-grid">
+            <div class="challenge-box">
+                <h4>1. Performance UX (Threading)</h4>
+                <div>
+                    <span class="tag">Python</span>
+                    <span class="tag">Async</span>
                 </div>
-                <div class="eb-content">
-                    <a href="{% static 'docs/CV_Alexis_Stephane.pdf' %}" class="btn-cv" download>
-                        📄 TÉLÉCHARGER MON CV
-                    </a>
-                </div>
+                <p>L'envoi d'emails bloquait l'interface. Solution : Implémentation de threads pour déporter l'envoi SMTP en arrière-plan.</p>
             </div>
-            <p style="margin-top: 20px; color: #666;">
-                Contact : <a href="mailto:siddick369@gmail.com" style="color: var(--gold);">siddick369@gmail.com</a>
+
+            <div class="challenge-box">
+                <h4>2. Filtrage Anti-Spam</h4>
+                <div>
+                    <span class="tag">Regex</span>
+                    <span class="tag">Sécurité</span>
+                </div>
+                <p>Algorithme de détection de "Charabia" et d'insultes via Regex complexes avant même l'envoi au serveur.</p>
+            </div>
+
+            <div class="challenge-box">
+                <h4>3. Optimisation Mobile</h4>
+                <div>
+                    <span class="tag">JS</span>
+                    <span class="tag">Performance</span>
+                </div>
+                <p>Désactivation automatique du moteur Canvas sur mobile (< 768px) pour préserver la batterie, remplacé par du CSS pur.</p>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="cta-container">
+            <a href="{% static 'docs/CV_Alexis_Stephane.pdf' %}" class="btn-3d" download>
+                <i class="fas fa-download"></i> TÉLÉCHARGER MON CV
+            </a>
+            <p class="contact-info">
+                Contact : <a href="mailto:siddick369@gmail.com">siddick369@gmail.com</a> | 
+                Téléphone : <a href="tel:+237XXXXXXXXX">+237 XX XX XX XX</a>
             </p>
         </div>
-
     </div>
 
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 Portfolio Technique | IUT Connect+ | Tous droits réservés</p>
+        <p style="margin-top: 10px; font-size: 0.8rem; color: #555;">
+            Design 3D Futuriste avec animations CSS avancées
+        </p>
+    </footer>
+
+    <!-- Scripts -->
     <script>
-    (function() {
-        const canvas = document.getElementById('hyperspeed');
-        const ctx = canvas.getContext('2d');
-        let width = window.innerWidth; let height = window.innerHeight;
-        canvas.width = width; canvas.height = height;
-
-        const STAR_COUNT = window.innerWidth < 768 ? 100 : 400; // Moins d'étoiles pour perf
-        const SPEED_BASE = 10;
-        const CENTER_X = width / 2; const CENTER_Y = height / 2;
-        const FOV = 300;
-
-        const COLORS = [{r:212,g:175,b:55}, {r:0,g:194,b:255}, {r:255,g:255,b:255}]; // Or, Bleu, Blanc
-        let stars = [];
-
-        class Star {
-            constructor() { this.init(true); }
-            init(first) {
-                this.x = (Math.random()-0.5)*width*3;
-                this.y = (Math.random()-0.5)*height*3;
-                this.z = first ? Math.random()*2000 : 2000;
-                this.speed = SPEED_BASE + Math.random()*5;
-                this.color = COLORS[Math.floor(Math.random()*COLORS.length)];
-                this.size = 1.2 * (0.8+Math.random()*0.4);
-            }
-            update() {
-                this.z -= this.speed;
-                if(this.z <= 1) this.init();
-            }
-            draw() {
-                const scale = FOV/this.z;
-                const x2d = CENTER_X + this.x*scale;
-                const y2d = CENTER_Y + this.y*scale;
-                const prevScale = FOV/(this.z+this.speed*3);
-                const prevX = CENTER_X + this.x*prevScale;
-                const prevY = CENTER_Y + this.y*prevScale;
+        // Animation des particules 3D légères
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.getElementById('particles-3d');
+            const particleCount = window.innerWidth < 768 ? 30 : 80;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
                 
-                const opacity = Math.min(1, 2-(this.z/1000));
-                ctx.beginPath();
-                ctx.moveTo(prevX, prevY); ctx.lineTo(x2d, y2d);
-                ctx.strokeStyle = `rgba(${this.color.r},${this.color.g},${this.color.b},${opacity})`;
-                ctx.lineWidth = this.size * scale;
-                ctx.lineCap = 'round';
-                ctx.stroke();
+                // Position aléatoire
+                const size = Math.random() * 60 + 20;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const delay = Math.random() * 20;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${x}%`;
+                particle.style.top = `${y}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                
+                // Couleur aléatoire entre bleu et or
+                const hue = Math.random() > 0.5 ? 200 : 50;
+                particle.style.background = `radial-gradient(circle, hsla(${hue}, 100%, 60%, 0.3) 0%, transparent 70%)`;
+                
+                particlesContainer.appendChild(particle);
             }
-        }
-
-        for(let i=0; i<STAR_COUNT; i++) stars.push(new Star());
-
-        function animate() {
-            ctx.fillStyle = 'rgba(7, 10, 18, 1)'; // Efface le canvas
-            ctx.fillRect(0, 0, width, height);
-            stars.forEach(s => { s.update(); s.draw(); });
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            width = window.innerWidth; height = window.innerHeight;
-            canvas.width = width; canvas.height = height;
+            
+            // Effet de tap pour mobile
+            const techCards = document.querySelectorAll('.tech-card');
+            const teamCards = document.querySelectorAll('.team-member-card');
+            
+            techCards.forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.classList.add('tapped');
+                });
+                
+                card.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.classList.remove('tapped');
+                    }, 300);
+                });
+            });
+            
+            teamCards.forEach(card => {
+                let tapTimer;
+                
+                card.addEventListener('touchstart', function() {
+                    tapTimer = setTimeout(() => {
+                        this.classList.add('tapped');
+                    }, 100);
+                });
+                
+                card.addEventListener('touchend', function() {
+                    clearTimeout(tapTimer);
+                    setTimeout(() => {
+                        this.classList.remove('tapped');
+                    }, 300);
+                });
+                
+                card.addEventListener('touchmove', function() {
+                    clearTimeout(tapTimer);
+                });
+            });
         });
-    })();
-    </script>
-
-    <script>
-    class ElectricBorderAnimation {
-        constructor(target, options = {}) {
-            if (window.innerWidth < 768) return; 
-            this.container = typeof target === 'string' ? document.getElementById(target) : target;
-            if (!this.container) return;
-            this.canvas = this.container.querySelector('.eb-canvas');
-            this.ctx = this.canvas.getContext('2d');
-            this.color = options.color || '#00D2FF';
-            this.speed = options.speed || 1;
-            this.chaos = options.chaos || 0.12;
-            this.borderRadius = options.borderRadius || 24;
-            this.container.style.setProperty('--electric-border-color', this.color);
-            this.time = 0; this.lastTime = 0;
-            this.octaves = 10; this.lacunarity = 1.6; this.gain = 0.7; this.frequency = 10; this.displacement = 60; this.borderOffset = 60;
-            this.resizeObserver = new ResizeObserver(() => this.updateSize());
-            this.resizeObserver.observe(this.container);
-            this.updateSize();
-            this.animate(0);
+        
+        // Détection de la préférence de réduction de mouvement
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        
+        if (motionQuery.matches) {
+            document.querySelectorAll('.tech-card, .team-member-card, .challenge-box, .btn-3d').forEach(element => {
+                element.style.animation = 'none';
+                element.style.transition = 'none';
+            });
         }
-        random(x) { return (Math.sin(x * 12.9898) * 43758.5453) % 1; }
-        noise2D(x, y) {
-            const i = Math.floor(x); const j = Math.floor(y);
-            const fx = x - i; const fy = y - j;
-            const a = this.random(i + j * 57); const b = this.random(i + 1 + j * 57);
-            const c = this.random(i + (j + 1) * 57); const d = this.random(i + 1 + (j + 1) * 57);
-            const ux = fx * fx * (3.0 - 2.0 * fx); const uy = fy * fy * (3.0 - 2.0 * fy);
-            return a * (1 - ux) * (1 - uy) + b * ux * (1 - uy) + c * (1 - ux) * uy + d * ux * uy;
-        }
-        octavedNoise(x, time, seed) {
-            let y = 0; let amplitude = this.chaos; let frequency = this.frequency;
-            for (let i = 0; i < this.octaves; i++) {
-                y += amplitude * this.noise2D(frequency * x + seed * 100, time * frequency * 0.3);
-                frequency *= this.lacunarity; amplitude *= this.gain;
-            }
-            return y;
-        }
-        getRoundedRectPoint(t, width, height, radius) {
-            const left = this.borderOffset; const top = this.borderOffset;
-            const straightW = width - 2 * radius; const straightH = height - 2 * radius;
-            const cornerArc = (Math.PI * radius) / 2;
-            const totalPerimeter = 2 * straightW + 2 * straightH + 4 * cornerArc;
-            const distance = t * totalPerimeter;
-            let acc = 0;
-            const getCorner = (cx, cy, r, sa, ea, p) => ({ x: cx + r * Math.cos(sa + p * ea), y: cy + r * Math.sin(sa + p * ea) });
-            if (distance <= acc + straightW) return { x: left + radius + (distance - acc), y: top }; acc += straightW;
-            if (distance <= acc + cornerArc) return getCorner(left + width - radius, top + radius, radius, -Math.PI/2, Math.PI/2, (distance - acc)/cornerArc); acc += cornerArc;
-            if (distance <= acc + straightH) return { x: left + width, y: top + radius + (distance - acc) }; acc += straightH;
-            if (distance <= acc + cornerArc) return getCorner(left + width - radius, top + height - radius, radius, 0, Math.PI/2, (distance - acc)/cornerArc); acc += cornerArc;
-            if (distance <= acc + straightW) return { x: left + width - radius - (distance - acc), y: top + height }; acc += straightW;
-            if (distance <= acc + cornerArc) return getCorner(left + radius, top + height - radius, Math.PI/2, Math.PI/2, (distance - acc)/cornerArc); acc += cornerArc;
-            if (distance <= acc + straightH) return { x: left, y: top + height - radius - (distance - acc) }; acc += straightH;
-            return getCorner(left + radius, top + radius, radius, Math.PI, Math.PI/2, (distance - acc)/cornerArc);
-        }
-        updateSize() {
-            const width = this.container.offsetWidth;
-            const height = this.container.offsetHeight;
-            this.width = width + this.borderOffset * 2;
-            this.height = height + this.borderOffset * 2;
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            this.canvas.width = this.width * dpr;
-            this.canvas.height = this.height * dpr;
-            this.canvas.style.width = `${this.width}px`;
-            this.canvas.style.height = `${this.height}px`;
-            this.ctx.scale(dpr, dpr);
-        }
-        animate(currentTime) {
-            if (!this.lastTime) this.lastTime = currentTime;
-            const deltaTime = (currentTime - this.lastTime) / 1000;
-            this.time += deltaTime * this.speed;
-            this.lastTime = currentTime;
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.scale(dpr, dpr);
-            this.ctx.strokeStyle = this.color;
-            this.ctx.lineWidth = 1.5;
-            this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
-            const cW = this.width - 2 * this.borderOffset;
-            const cH = this.height - 2 * this.borderOffset;
-            const r = Math.min(this.borderRadius, Math.min(cW, cH) / 2);
-            const perimeter = 2 * (cW + cH) + 2 * Math.PI * r;
-            const count = Math.floor(perimeter / 2);
-            this.ctx.beginPath();
-            for (let i = 0; i <= count; i++) {
-                const p = i / count;
-                const pt = this.getRoundedRectPoint(p, cW, cH, r);
-                const xN = this.octavedNoise(p * 8, this.time, 0);
-                const yN = this.octavedNoise(p * 8, this.time, 1);
-                const x = pt.x + xN * this.displacement;
-                const y = pt.y + yN * this.displacement;
-                if (i === 0) this.ctx.moveTo(x, y); else this.ctx.lineTo(x, y);
-            }
-            this.ctx.closePath();
-            this.ctx.stroke();
-            requestAnimationFrame((t) => this.animate(t));
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        // Applique l'effet électrique sur le bouton CV
-        new ElectricBorderAnimation('btnCV', {
-            color: '#D4AF37',
-            speed: 1.5,
-            borderRadius: 30
-        });
-    });
     </script>
 </body>
 </html>
-            

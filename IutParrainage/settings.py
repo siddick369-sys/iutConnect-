@@ -156,7 +156,40 @@ LANGUAGE_CODE = 'fr-fr' # On passe en Français
 TIME_ZONE = 'Africa/Douala' # Ton fuseau horaire
 USE_I18N = True
 USE_TZ = True
+# Imports en haut du fichier (ajoutez si manquant)
+import os
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
+# ... TOUT VOTRE CODE EXISTANT ICI ...
+
+# ================ AJOUTEZ CETTE PARTIE À LA FIN ================
+
+# Configuration Sentry
+if not DEBUG:  # Ne s'active que quand DEBUG=False (production)
+    sentry_sdk.init(
+        dsn="https://1c8051e00b42385db2ddc70122f244ac@o4510634551803904.ingest.de.sentry.io/4510662613074000",
+        integrations=[DjangoIntegration()],
+        
+        # Performance monitoring (10% des requêtes)
+        traces_sample_rate=0.1,
+        
+        # Profiling (optionnel)
+        profiles_sample_rate=0.1,
+        
+        # Environnement
+        environment="production",
+        
+        # Ajouter les infos utilisateur (comme vous l'avez)
+        send_default_pii=True,
+        
+        # Désactiver en local
+        debug=False,
+    )
+    
+    print("✅ Sentry initialisé avec succès")
+else:
+    print("⚠️  Sentry désactivé (mode DEBUG activé)")
 
 # =========================================================
 # 🎨 FICHIERS STATIQUES (WHITENOISE)

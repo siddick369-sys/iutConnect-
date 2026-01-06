@@ -151,6 +151,7 @@
             <li><a href="#objectifs">Objectifs</a></li>
             <li><a href="#events">Événements</a></li>
             <li><a href="{% url 'avis'%}">avis</a></li>
+            <li><a href="{% url 'developpeur'%}">la team</a></li>
             <li> <form action="{% url 'deconnexion' %}" method="post">
           {% csrf_token %}
           <button class="btn" type="submit">Déconnexion</button>
@@ -661,6 +662,10 @@
                     <li><a href="#hero">Accueil</a></li>
                     <li><a href="#about">À propos</a></li>
                     <li><a href="#objectifs">Objectifs</a></li>
+                    
+                    <li><a href="{% url 'avis'%}">avis</a></li>
+                    
+                     <li><a href="{% url 'rgpd'%}">Politique et confidentialite </a></li>
                 </ul>
             </div>
             <div>

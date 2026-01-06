@@ -15,7 +15,7 @@ urlpatterns = [
     path('mot-de-passe-oublie/', views.mot_de_passe_oublie, name='mot-de-passe-oublie'),
     path('api/avis/', views.soumettre_avis, name='soumettre_avis'),
     path('confidentialite/', views.rgpd, name='rgpd'),
-    path('developpeur/', views.portfolio, name='portfolio'),
+    path('developpeur/', views.portfolio, name='developpeur'),
 
 
 
