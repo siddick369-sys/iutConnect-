@@ -48,7 +48,7 @@ class EtudiantNiveau1Resource(resources.ModelResource):
 
 class EtudiantNiveau2Resource(resources.ModelResource):
     numero = fields.Field(attribute='numero', column_name='N°', widget=CharWidget())
-    matricule = fields.Field(attribute='matricule', column_name='Matricule', widget=CharWidget())
+    matricule = fields.Field(attribute='matricule', column_name='MATRICULE', widget=CharWidget())
     nom_prenom = fields.Field(attribute='nom_prenom', column_name='NOMS ET PRENOMS')
     email = fields.Field(attribute='email', column_name='ADRESSE_EMAIL')
     telephone = fields.Field(attribute='telephone', column_name='Téléphone')
