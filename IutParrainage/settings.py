@@ -250,8 +250,6 @@ if not DEBUG:
 
 # Configuration Session
 SESSION_COOKIE_AGE = 360000 # 1 heure
-SESSION_SAVE_EVERY_REQUEST = False
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 
 # =========================================================

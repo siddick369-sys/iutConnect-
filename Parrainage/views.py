@@ -37,99 +37,88 @@ class EmailThreadia(threading.Thread):
 
 # Configuration du logger (pour garder une trace des erreurs en prod)
 logger = logging.getLogger(__name__)
-
 def connexion_etudiant(request):
-    # 1. PROTECTION ANTI-BRUTE FORCE (RATE LIMITING)
-    # On utilise l'IP de l'utilisateur comme clé
-    ip_client = request.META.get('REMOTE_ADDR')
-    cache_key = f"login_attempts_{ip_client}"
-    attempts = cache.get(cache_key, 0)
+    # CAS 1 : L'utilisateur envoie le formulaire (POST)
+    if request.method == "POST":
+        
+        # 1. PROTECTION ANTI-BRUTE FORCE
+        ip_client = request.META.get('REMOTE_ADDR')
+        cache_key = f"login_attempts_{ip_client}"
+        attempts = cache.get(cache_key, 0)
 
-    # Si plus de 5 tentatives échouées en 5 minutes, on bloque
-    if attempts >= 5:
-        messages.error(request, "Trop de tentatives échouées. Réessayez dans 5 minutes.")
-        logger.warning(f"Blocage Brute Force IP: {ip_client}")
-        return render(request,"connexion.html")
+        if attempts >= 5:
+            messages.error(request, "Trop de tentatives échouées. Réessayez dans 5 minutes.")
+            logger.warning(f"Blocage Brute Force IP: {ip_client}")
+            return render(request, "connexion.html")
 
-    # 2. NETTOYAGE ET VALIDATION DES ENTRÉES
-    matricule = request.POST.get("matricule", "").strip().upper() # On met le matricule en majuscule par défaut
-    nom_prenom = request.POST.get("nom_prenom", "").strip()
-    mention = request.POST.get("mention", "").strip()
-    telephone = request.POST.get("telephone", "").strip()
+        # 2. NETTOYAGE
+        matricule = request.POST.get("matricule", "").strip().upper()
+        nom_prenom = request.POST.get("nom_prenom", "").strip()
+        mention = request.POST.get("mention", "").strip()
+        telephone = request.POST.get("telephone", "").strip()
 
-    # Vérification que tous les champs sont remplis
-    if not all([matricule, nom_prenom, mention, telephone]):
-        messages.error(request, "Tous les champs sont obligatoires.")
-        return render(request,"connexion.html")
+        # Vérification des champs
+        if not all([matricule, nom_prenom, mention, telephone]):
+            messages.error(request, "Tous les champs sont obligatoires.")
+            # On retourne le render pour garder les champs pré-remplis si besoin, 
+            # ou redirect pour nettoyer. Render est souvent mieux ici pour l'UX.
+            return render(request, "connexion.html")
 
-    try:
-        # 3. RECHERCHE OPTIMISÉE (DB)
-        # Utilisation de Q objects si nécessaire, mais ton filtre actuel est bon pour ce cas précis
-        etudiant = EtudiantNiveau1.objects.filter(
-            matricule=matricule, # Si tes matricules sont propres en DB, retire iexact pour gagner en perf
-            telephone=telephone,
-            actif=True
-        ).first()
-
-        if not etudiant:
-            etudiant = EtudiantNiveau2.objects.filter(
-                matricule=matricule,
-                telephone=telephone,
-                actif=True
+        try:
+            # 3. RECHERCHE
+            etudiant = EtudiantNiveau1.objects.filter(
+                matricule=matricule, telephone=telephone, actif=True
             ).first()
 
-        # NOTE DE SECURITÉ : 
-        # J'ai réduit la recherche à Matricule + Téléphone d'abord. 
-        # Vérifier Nom et Mention après coup est souvent plus performant 
-        # et évite les erreurs de frappe mineures sur le nom.
-        # Mais si tu veux être STRICT, garde ta logique de 4 champs.
-        
-        # Vérification stricte des autres champs (pour éviter les homonymes ou erreurs)
-        if etudiant:
-            # On vérifie que le nom correspond (insensible à la casse)
-            if (etudiant.nom_prenom.lower() != nom_prenom.lower() or 
-                etudiant.mention.lower() != mention.lower()):
-                etudiant = None # On invalide si le nom ou la mention ne match pas
+            if not etudiant:
+                etudiant = EtudiantNiveau2.objects.filter(
+                    matricule=matricule, telephone=telephone, actif=True
+                ).first()
 
-        if etudiant:
-            # 4. SUCCÈS : SECURISATION DE LA SESSION
-            
-            # CRUCIAL : Effacer l'ancienne session pour éviter le vol de session (Session Fixation)
-            request.session.flush()
+            # Vérification stricte Nom/Mention
+            if etudiant:
+                if (etudiant.nom_prenom.lower() != nom_prenom.lower() or 
+                    etudiant.mention.lower() != mention.lower()):
+                    etudiant = None 
 
-            # Stockage des infos
-            request.session["user_id"] = etudiant.id # Toujours utile d'avoir l'ID
-            request.session["matricule"] = etudiant.matricule
-            request.session["nom_prenom"] = etudiant.nom_prenom
-            request.session["mention"] = etudiant.mention
-            request.session["parcours"] = etudiant.parcours
-            request.session["niveau"] = etudiant.niveau
-            request.session["annee"] = etudiant.annee_academique
-            
-            # On marque explicitement que l'utilisateur est "connecté" selon ta logique
-            request.session["is_logged_in"] = True 
+            if etudiant:
+                # 4. SUCCÈS
+                request.session.flush() # Sécurité
+                
+                request.session["user_id"] = etudiant.id
+                request.session["matricule"] = etudiant.matricule
+                request.session["nom_prenom"] = etudiant.nom_prenom
+                request.session["mention"] = etudiant.mention
+                request.session["parcours"] = etudiant.parcours
+                request.session["niveau"] = str(etudiant.niveau) # Convertir en str pour éviter soucis de comparaison
+                request.session["annee"] = etudiant.annee_academique
+                request.session["is_logged_in"] = True 
 
-            # Reset du compteur de tentatives en cas de succès
-            cache.delete(cache_key)
+                cache.delete(cache_key) # Reset tentatives
+                
+                messages.success(request, f"Bienvenue {etudiant.nom_prenom} 👋")
+                logger.info(f"Connexion réussie : {matricule}")
+                
+                # CORRECTION MAJEURE ICI : REDIRECT vers la vue accueil
+                # Cela permet d'exécuter la logique de la vue 'accueil'
+                return redirect("accueil") 
 
-            messages.success(request, f"Bienvenue {etudiant.nom_prenom} 👋")
-            logger.info(f"Connexion réussie : {matricule} (IP: {ip_client})")
-            return render(request,"index.html")
+            else:
+                # 5. ECHEC
+                cache.set(cache_key, attempts + 1, 300)
+                logger.warning(f"Échec connexion : {matricule}")
+                messages.error(request, "Informations incorrectes.")
+                return render(request, "connexion.html")
 
-        else:
-            # 5. ECHEC : GESTION DES TENTATIVES
-            # Incrémente le compteur de tentatives (expire dans 300 secondes = 5 min)
-            cache.set(cache_key, attempts + 1, 300)
-            
-            logger.warning(f"Échec connexion : {matricule} - Tel: {telephone} (IP: {ip_client})")
-            messages.error(request, "Informations incorrectes. Vérifiez votre matricule et téléphone.")
-            return redirect("connexion")
+        except Exception as e:
+            logger.error(f"Erreur critique : {str(e)}")
+            messages.error(request, "Une erreur technique est survenue.")
+            return render(request, "connexion.html")
 
-    except Exception as e:
-        # En cas d'erreur serveur imprévue (DB down, etc.)
-        logger.error(f"Erreur critique lors de la connexion : {str(e)}")
-        messages.error(request, "Une erreur technique est survenue. Veuillez réessayer.")
-        return render(request,"connexion.html")
+    # CAS 2 : L'utilisateur arrive sur la page (GET)
+    else:
+        # On affiche simplement la page de connexion vide
+        return render(request, "connexion.html")
     
 
 from django.shortcuts import render, redirect
@@ -144,8 +133,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# 1. EMPÊCHE LE STOCKAGE DANS LE NAVIGATEUR (Bouton retour sécurisé)
-@never_cache 
+# 1. EMPÊCHE LE STOCKAGE DANS LE NAVIGATEUR (Bouton retour sécurisé) 
 def accueil(request):
     """
     Affiche la page d’accueil. 
