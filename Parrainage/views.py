@@ -35,6 +35,24 @@ class EmailThreadia(threading.Thread):
         except Exception as e:
             print(f"❌ Erreur envoi mail (Thread) : {e}")
 
+import unicodedata
+
+def normaliser_texte(texte):
+    """
+    Transforme un texte en minuscule et retire les accents.
+    Exemple: "HélÈne" -> "helene"
+    """
+    if not texte:
+        return ""
+    
+    # 1. On décompose les caractères (ex: 'é' devient 'e' + 'accent aigu')
+    texte_nfd = unicodedata.normalize('NFD', str(texte))
+    
+    # 2. On garde seulement les caractères qui ne sont pas des marques d'accent (Mn)
+    texte_sans_accent = "".join([c for c in texte_nfd if unicodedata.category(c) != 'Mn'])
+    
+    # 3. On met tout en minuscule et on nettoie les espaces
+    return texte_sans_accent.lower().strip()
 # Configuration du logger (pour garder une trace des erreurs en prod)
 logger = logging.getLogger(__name__)
 def connexion_etudiant(request):
@@ -52,13 +70,13 @@ def connexion_etudiant(request):
             return render(request, "connexion.html")
 
         # 2. NETTOYAGE
-        matricule = request.POST.get("matricule", "").strip().upper()
-        nom_prenom = request.POST.get("nom_prenom", "").strip()
-        mention = request.POST.get("mention", "").strip()
-        telephone = request.POST.get("telephone", "").strip()
+        matricule_input = request.POST.get("matricule", "").strip().upper()
+        nom_prenom_input = request.POST.get("nom_prenom", "").strip()
+        mention_input = request.POST.get("mention", "").strip()
+        telephone_input = request.POST.get("telephone", "").strip()
 
         # Vérification des champs
-        if not all([matricule, nom_prenom, mention, telephone]):
+        if not all([matricule_input, nom_prenom_input, mention_input, telephone_input]):
             messages.error(request, "Tous les champs sont obligatoires.")
             # On retourne le render pour garder les champs pré-remplis si besoin, 
             # ou redirect pour nettoyer. Render est souvent mieux ici pour l'UX.
@@ -67,20 +85,28 @@ def connexion_etudiant(request):
         try:
             # 3. RECHERCHE
             etudiant = EtudiantNiveau1.objects.filter(
-                matricule=matricule, telephone=telephone, actif=True
+                matricule_iexact=matricule_input, telephone_iexact=telephone_input, actif=True
             ).first()
 
             if not etudiant:
                 etudiant = EtudiantNiveau2.objects.filter(
-                    matricule=matricule, telephone=telephone, actif=True
+                    matricule_iexact=matricule_input, telephone_iexact=telephone_input, actif=True
                 ).first()
-
-            # Vérification stricte Nom/Mention
+                
             if etudiant:
-                if (etudiant.nom_prenom.lower() != nom_prenom.lower() or 
-                    etudiant.mention.lower() != mention.lower()):
-                    etudiant = None 
+                # On normalise la valeur en base de données
+                db_nom = normaliser_texte(etudiant.nom_prenom)
+                db_mention = normaliser_texte(etudiant.mention)
 
+                # On normalise la saisie utilisateur
+                user_nom = normaliser_texte(nom_prenom_input)
+                user_mention = normaliser_texte(mention_input)
+
+                # On compare les versions "propres"
+                # Ex: db="Cédric" (cedric) == user="CEDRIC" (cedric) -> VRAI
+                if db_nom != user_nom or db_mention != user_mention:
+                    etudiant = None # Ça ne matche pas
+            
             if etudiant:
                 # 4. SUCCÈS
                 request.session.flush() # Sécurité
@@ -97,7 +123,7 @@ def connexion_etudiant(request):
                 cache.delete(cache_key) # Reset tentatives
                 
                 messages.success(request, f"Bienvenue {etudiant.nom_prenom} 👋")
-                logger.info(f"Connexion réussie : {matricule}")
+                logger.info(f"Connexion réussie : {matricule_input}")
                 
                 # CORRECTION MAJEURE ICI : REDIRECT vers la vue accueil
                 # Cela permet d'exécuter la logique de la vue 'accueil'
@@ -106,7 +132,7 @@ def connexion_etudiant(request):
             else:
                 # 5. ECHEC
                 cache.set(cache_key, attempts + 1, 300)
-                logger.warning(f"Échec connexion : {matricule}")
+                logger.warning(f"Échec connexion : {matricule_input}")
                 messages.error(request, "Informations incorrectes.")
                 return render(request, "connexion.html")
 
