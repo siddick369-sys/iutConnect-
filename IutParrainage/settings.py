@@ -211,14 +211,22 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # =========================================================
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
-# Récupérer ces infos depuis les variables d'environnement (plus sûr)
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') 
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 
+# --- TES IDENTIFIANTS BREVO ---
+# L'identifiant que Brevo t'a donné (celui de ton message)
+EMAIL_HOST_USER = '9f4b2a001@smtp-brevo.com'
+
+# Ta NOUVELLE clé secrète (que tu vas générer, pas celle postée ici)
+EMAIL_HOST_PASSWORD = 'K7VXJCdE8cx3rDmY'
+
+# --- TRES IMPORTANT ---
+# Ici, mets l'email avec lequel tu as créé le compte Brevo (ex: alexis@gmail.com)
+# C'est l'adresse que les gens verront comme expéditeur.
+DEFAULT_FROM_EMAIL = 'sasukenozel@gmail.com'
 
 # =========================================================
 # 🔒 SÉCURITÉ PRODUCTION (S'active si DEBUG=False)
