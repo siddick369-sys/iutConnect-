@@ -200,7 +200,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Configuration WhiteNoise pour la compression et le cache
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -259,7 +259,7 @@ SESSION_COOKIE_AGE = 360000 # 1 heure
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # =========================================================
-# 📝 LOGGING
+# 📝LOGGING
 # =========================================================
 # (Garde ton logging actuel, il est correct, je l'ai simplifié pour la lisibilité)
 
