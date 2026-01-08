@@ -34,25 +34,29 @@ class EmailThreadia(threading.Thread):
             print("✅ Email d'alerte envoyé avec succès (Thread).")
         except Exception as e:
             print(f"❌ Erreur envoi mail (Thread) : {e}")
-
 import unicodedata
 
 def normaliser_texte(texte):
     """
-    Transforme un texte en minuscule et retire les accents.
-    Exemple: "HélÈne" -> "helene"
+    Normalise un texte pour l'authentification :
+    - Minuscules
+    - Retire les accents (é -> e, ï -> i)
+    - Décompose les ligatures (œ -> oe, æ -> ae)
+    Exemple: "HélÈne Cœur" -> "helene coeur"
     """
     if not texte:
         return ""
     
-    # 1. On décompose les caractères (ex: 'é' devient 'e' + 'accent aigu')
-    texte_nfd = unicodedata.normalize('NFD', str(texte))
+    # 1. Utilisation de NFKD (Compatibility Decomposition)
+    # C'est la clé : cela transforme 'œ' en 'oe', 'æ' en 'ae', etc.
+    texte_nfkd = unicodedata.normalize('NFKD', str(texte))
     
     # 2. On garde seulement les caractères qui ne sont pas des marques d'accent (Mn)
-    texte_sans_accent = "".join([c for c in texte_nfd if unicodedata.category(c) != 'Mn'])
+    texte_sans_accent = "".join([c for c in texte_nfkd if unicodedata.category(c) != 'Mn'])
     
-    # 3. On met tout en minuscule et on nettoie les espaces
+    # 3. Minuscule et nettoyage
     return texte_sans_accent.lower().strip()
+
 # Configuration du logger (pour garder une trace des erreurs en prod)
 logger = logging.getLogger(__name__)
 def connexion_etudiant(request):
