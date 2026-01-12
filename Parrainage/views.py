@@ -292,6 +292,10 @@ def voir_filleuls(request):
     if not parrain.code_secret:
         if request.method == "POST":
             nouveau_code = request.POST.get("nouveau_code", "").strip()
+            if len(nouveau_code) != 4:
+                messages.error(request,"le code doit avoir 4 caractere")
+                return redirect("accueil")
+                
             # Validation simple
             if len(nouveau_code) == 4 and nouveau_code.isdigit():
                 # Hachage et sauvegarde

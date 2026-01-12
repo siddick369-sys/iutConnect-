@@ -33,9 +33,9 @@ ANNEES = [
 class EtudiantNiveau1(models.Model):
     numero = models.IntegerField(null=True,blank=True)  # <-- Importé depuis l’annuaire, pas auto-généré
     nom_prenom = models.CharField(max_length=100)
-    matricule = models.CharField(max_length=50, unique=False)
+    matricule = models.CharField(max_length=51, unique=False)
     email = models.EmailField(unique=False,null=True,blank=True)
-    telephone = models.CharField(max_length=9, validators=[telephone_validator],blank=True,unique=False,null=True)
+    telephone = models.CharField(max_length=20, validators=[telephone_validator],blank=True,unique=False,null=True)
     mention = models.CharField(max_length=40)
     parcours = models.CharField(max_length=20)
     niveau = models.CharField(max_length=10, default='N1')
