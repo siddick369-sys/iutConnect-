@@ -367,6 +367,12 @@
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
 
+    // Vérification de sécurité : si le formulaire n'existe pas dans le DOM
+    if (!form) {
+        console.error("Formulaire 'loginForm' introuvable.");
+        return;
+    }
+
     // --- Crée un modal d’alerte glass ---
     function showGlassModal(message, success = false) {
         const modal = document.createElement("div");
@@ -388,6 +394,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Animation confettis ---
     function lancerConfettisEtFeux() {
+        if (typeof confetti !== 'function') {
+            console.warn("La librairie confetti n'est pas chargée.");
+            return;
+        }
         const duration = 2 * 1000;
         const end = Date.now() + duration;
 
@@ -408,90 +418,73 @@ document.addEventListener("DOMContentLoaded", () => {
         })();
     }
 
-    form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(form);
-    
-    // Validation du téléphone
-    const telInput = formData.get('telephone');
-
-// 1. Nettoyage : On supprime tout ce qui n'est pas un chiffre (\D)
-// "685-285-409" deviendra "685285409"
-// "685 285 409" deviendra "685285409"
-    const telClean = telInput.replace(/\D/g, ''); 
-
-// 2. Validation sur le numéro nettoyé
-    if (!/^6\d{8}$/.test(telClean)) {
-    showGlassModal("Le numéro de téléphone doit commencer par 6 et comporter 9 chiffres.");
-    return;
-    }
-
-// À partir d'ici, tu peux utiliser 'telClean' pour tes requêtes API/Base de données
-    console.log("Numéro valide :", telClean);
-    // Validation des champs vides
-    if (!formData.get('matricule') || !tel) {
-        showGlassModal("Veuillez remplir tous les champs.");
-        return;
-    }
-
-    try {
-        const response = await fetch(form.action, {
-            method: "POST",
-            body: formData
-        });
-
-        // 1. On vérifie si l'URL a changé (Indice fort de redirection)
-        // Si l'URL finale n'est pas celle de la connexion, c'est qu'on est sur l'accueil
-        const isRedirected = response.redirected || response.url.includes('/accueil'); 
-
-        if (isRedirected) {
-            handleSuccess();
-            return;
-        }
-
-        // 2. Si pas de redirection évidente, on analyse le contenu HTML
-        const htmlText = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, "text/html");
-
-        // --- C'EST ICI LA CORRECTION ---
-        
-        // A. On regarde d'abord si on trouve un toast de SUCCÈS (vert)
-        // Cela arrive si fetch a chargé la page d'accueil sans qu'on détecte la redirection
-        const successMessage = doc.querySelector('.toast-success .toast-message');
-        
-        if (successMessage) {
-            handleSuccess(successMessage.innerText.trim());
-            return;
-        }
-
-        // B. Sinon, on cherche un toast d'ERREUR (rouge/jaune)
-        const errorMessage = doc.querySelector('.toast-error .toast-message') || 
-                             doc.querySelector('.toast-warning .toast-message') ||
-                             doc.querySelector('.toast-message'); // Fallback
-
-        const msg = errorMessage ? errorMessage.innerText.trim() : "Identifiants incorrects.";
-        showGlassModal(msg); // Affiche le modal standard (Erreur)
-
-    } catch (error) {
-        console.error(error);
-        showGlassModal("Erreur technique. Réessayez plus tard.");
-    }
-    
-    // Fonction utilitaire pour gérer le succès
+    // Définition de la fonction handleSuccess avant l'usage
     function handleSuccess(msg = "Bienvenue sur IUT Connect+ 🎉") {
         lancerConfettisEtFeux();
-        showGlassModal(msg, true); // true = Style succès (Vert)
+        showGlassModal(msg, true);
         setTimeout(() => {
-            // On force la redirection vers l'accueil
-            // Si response.url est déjà l'accueil, ça rechargera juste la page, ce qui est bien
             window.location.href = "/accueil/"; 
         }, 2500);
     }
-});
-    
 
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const matricule = formData.get('matricule');
+        const telInput = formData.get('telephone');
+
+        // 1. Validation des champs vides (Correction ici : on teste les variables récupérées)
+        if (!matricule || !telInput) {
+            showGlassModal("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        // 2. Nettoyage et Validation du téléphone
+        const telClean = telInput.replace(/\D/g, ''); 
+
+        if (!/^6\d{8}$/.test(telClean)) {
+            showGlassModal("Le numéro de téléphone doit commencer par 6 et comporter 9 chiffres.");
+            return;
+        }
+
+        try {
+            const response = await fetch(form.action, {
+                method: "POST",
+                body: formData
+            });
+
+            // 3. Vérification de la redirection
+            const isRedirected = response.redirected || response.url.includes('/accueil'); 
+
+            if (isRedirected) {
+                handleSuccess();
+                return;
+            }
+
+            // 4. Analyse de la réponse HTML
+            const htmlText = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, "text/html");
+
+            const successMessage = doc.querySelector('.toast-success .toast-message');
+            if (successMessage) {
+                handleSuccess(successMessage.innerText.trim());
+                return;
+            }
+
+            const errorMessage = doc.querySelector('.toast-error .toast-message') || 
+                                 doc.querySelector('.toast-warning .toast-message') ||
+                                 doc.querySelector('.toast-message');
+
+            const msg = errorMessage ? errorMessage.innerText.trim() : "Identifiants incorrects.";
+            showGlassModal(msg);
+
+        } catch (error) {
+            console.error("Erreur lors de l'envoi :", error);
+            showGlassModal("Erreur technique. Réessayez plus tard.");
+        }
+    });
 });
 </script>
 <script>
