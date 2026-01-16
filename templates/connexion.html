@@ -366,15 +366,20 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
+    const spinner = document.getElementById("spinner"); // Récupération du spinner
 
-    // Vérification de sécurité : si le formulaire n'existe pas dans le DOM
+    // Vérification de sécurité
     if (!form) {
         console.error("Formulaire 'loginForm' introuvable.");
         return;
     }
 
-    // --- Crée un modal d’alerte glass ---
+    // --- Fonction d'affichage du modal ---
     function showGlassModal(message, success = false) {
+        // Supprime une éventuelle alerte existante pour éviter les doublons
+        const existingAlert = document.querySelector('.glass-alert');
+        if(existingAlert) existingAlert.remove();
+
         const modal = document.createElement("div");
         modal.className = "glass-alert";
         modal.innerHTML = `
@@ -385,106 +390,114 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         document.body.appendChild(modal);
 
-        setTimeout(() => modal.classList.add("show"), 50);
+        // Animation
+        requestAnimationFrame(() => modal.classList.add("show"));
+        
+        // Auto-suppression
         setTimeout(() => {
             modal.classList.remove("show");
             setTimeout(() => modal.remove(), 300);
-        }, success ? 2500 : 3000);
+        }, success ? 2500 : 4000);
     }
 
     // --- Animation confettis ---
     function lancerConfettisEtFeux() {
-        if (typeof confetti !== 'function') {
-            console.warn("La librairie confetti n'est pas chargée.");
-            return;
+        if (typeof confetti === 'function') {
+            const end = Date.now() + 2000;
+            (function frame() {
+                confetti({ particleCount: 6, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 6, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            })();
         }
-        const duration = 2 * 1000;
-        const end = Date.now() + duration;
-
-        (function frame() {
-            confetti({
-                particleCount: 6,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-            });
-            confetti({
-                particleCount: 6,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-            });
-            if (Date.now() < end) requestAnimationFrame(frame);
-        })();
     }
 
-    // Définition de la fonction handleSuccess avant l'usage
-    function handleSuccess(msg = "Bienvenue sur IUT Connect+ 🎉") {
-        lancerConfettisEtFeux();
-        showGlassModal(msg, true);
-        setTimeout(() => {
-            window.location.href = "/accueil/"; 
-        }, 2500);
-    }
-
+    // --- Gestionnaire de soumission ---
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+        console.log("Tentative de connexion...");
 
         const formData = new FormData(form);
         const matricule = formData.get('matricule');
         const telInput = formData.get('telephone');
 
-        // 1. Validation des champs vides (Correction ici : on teste les variables récupérées)
+        // 1. Validation locale
         if (!matricule || !telInput) {
             showGlassModal("Veuillez remplir tous les champs.");
             return;
         }
 
-        // 2. Nettoyage et Validation du téléphone
         const telClean = telInput.replace(/\D/g, ''); 
-
         if (!/^6\d{8}$/.test(telClean)) {
-            showGlassModal("Le numéro de téléphone doit commencer par 6 et comporter 9 chiffres.");
+            showGlassModal("Le numéro doit commencer par 6 et avoir 9 chiffres.");
             return;
         }
+
+        // 2. Afficher le chargement
+        if (spinner) spinner.style.display = "flex"; // Assurez-vous que votre CSS gère le display flex/block
 
         try {
             const response = await fetch(form.action, {
                 method: "POST",
-                body: formData
+                body: formData,
+                headers: {
+                    // Important pour Django AJAX si le CSRF n'est pas dans le body
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
 
-            // 3. Vérification de la redirection
+            console.log("Statut réponse:", response.status);
+
+            // 3. Vérification redirection (Succès Django standard)
+            // Si Django redirige, fetch suit le lien automatiquement.
             const isRedirected = response.redirected || response.url.includes('/accueil'); 
 
-            if (isRedirected) {
-                handleSuccess();
-                return;
+            if (isRedirected || response.status === 200) {
+                // Parfois fetch suit la redirection mais on veut vérifier le contenu final
+                // Ici on suppose que si l'URL a changé, c'est bon.
+                if(response.url !== window.location.href) {
+                     handleSuccess();
+                     return;
+                }
             }
 
-            // 4. Analyse de la réponse HTML
+            // 4. Analyse de la réponse en cas d'échec (ou si on est resté sur la même page)
             const htmlText = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlText, "text/html");
 
+            // On cherche d'abord un message de succès caché
             const successMessage = doc.querySelector('.toast-success .toast-message');
             if (successMessage) {
                 handleSuccess(successMessage.innerText.trim());
                 return;
             }
 
+            // On cherche un message d'erreur
             const errorMessage = doc.querySelector('.toast-error .toast-message') || 
                                  doc.querySelector('.toast-warning .toast-message') ||
-                                 doc.querySelector('.toast-message');
+                                 doc.querySelector('.toast-message') ||
+                                 doc.querySelector('.errorlist li'); // Django form errors standard
 
-            const msg = errorMessage ? errorMessage.innerText.trim() : "Identifiants incorrects.";
+            const msg = errorMessage ? errorMessage.innerText.trim() : "Identifiants incorrects ou erreur serveur.";
             showGlassModal(msg);
 
         } catch (error) {
-            console.error("Erreur lors de l'envoi :", error);
-            showGlassModal("Erreur technique. Réessayez plus tard.");
+            console.error("Erreur Fetch :", error);
+            showGlassModal("Impossible de contacter le serveur.");
+        } finally {
+            // 5. Cacher le chargement quoi qu'il arrive
+            if (spinner) spinner.style.display = "none";
         }
     });
+
+    function handleSuccess(msg = "Bienvenue sur IUT Connect+ 🎉") {
+        lancerConfettisEtFeux();
+        showGlassModal(msg, true);
+        setTimeout(() => {
+            window.location.href = "/accueil/"; 
+        }, 2000);
+    }
 });
 </script>
 <script>
