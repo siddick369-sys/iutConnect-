@@ -89,12 +89,12 @@ def connexion_etudiant(request):
         try:
             # 3. RECHERCHE
             etudiant = EtudiantNiveau1.objects.filter(
-                matricule__iexact=matricule_input, telephone__iexact=telephone_input, actif=True
+                matricule__iexact=matricule_input, actif=True
             ).first()
 
             if not etudiant:
                 etudiant = EtudiantNiveau2.objects.filter(
-                    matricule__iexact=matricule_input, telephone__iexact=telephone_input, actif=True
+                    matricule__iexact=matricule_input, actif=True
                 ).first()
                 
             if etudiant:
