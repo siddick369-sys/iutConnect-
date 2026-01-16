@@ -414,12 +414,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData(form);
     
     // Validation du téléphone
-    const tel = formData.get('telephone');
-    if (!/^6\d{8}$/.test(tel.trim())) {
-        showGlassModal("Le numéro de téléphone doit commencer par 6 et comporter 9 chiffres.");
-        return;
+    const telInput = formData.get('telephone');
+
+// 1. Nettoyage : On supprime tout ce qui n'est pas un chiffre (\D)
+// "685-285-409" deviendra "685285409"
+// "685 285 409" deviendra "685285409"
+    const telClean = telInput.replace(/\D/g, ''); 
+
+// 2. Validation sur le numéro nettoyé
+    if (!/^6\d{8}$/.test(telClean)) {
+    showGlassModal("Le numéro de téléphone doit commencer par 6 et comporter 9 chiffres.");
+    return;
     }
 
+// À partir d'ici, tu peux utiliser 'telClean' pour tes requêtes API/Base de données
+console.log("Numéro valide :", telClean);
     // Validation des champs vides
     if (!formData.get('matricule') || !tel) {
         showGlassModal("Veuillez remplir tous les champs.");
