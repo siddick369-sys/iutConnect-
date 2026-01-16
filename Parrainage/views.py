@@ -35,35 +35,40 @@ class EmailThreadia(threading.Thread):
         except Exception as e:
             print(f"❌ Erreur envoi mail (Thread) : {e}")
 import unicodedata
-
-def normaliser_texte(texte):
-    """
-    Normalise un texte pour l'authentification :
-    - Minuscules
-    - Retire les accents (é -> e, ï -> i)
-    - Décompose les ligatures (œ -> oe, æ -> ae)
-    Exemple: "HélÈne Cœur" -> "helene coeur"
-    """
-    if not texte:
-        return ""
-    
-    # 1. Utilisation de NFKD (Compatibility Decomposition)
-    # C'est la clé : cela transforme 'œ' en 'oe', 'æ' en 'ae', etc.
-    texte_nfkd = unicodedata.normalize('NFKD', str(texte))
-    
-    # 2. On garde seulement les caractères qui ne sont pas des marques d'accent (Mn)
-    texte_sans_accent = "".join([c for c in texte_nfkd if unicodedata.category(c) != 'Mn'])
-    
-    # 3. Minuscule et nettoyage
-    return texte_sans_accent.lower().strip()
-
 # Configuration du logger (pour garder une trace des erreurs en prod)
 logger = logging.getLogger(__name__)
+import re
+import logging
+import unicodedata
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.cache import cache
+# Remplace 'ton_app' par le nom réel de ton dossier d'application
+from .models import EtudiantNiveau1, EtudiantNiveau2 
+
+logger = logging.getLogger(__name__)
+
+# --- FONCTIONS DE NETTOYAGE ---
+
+def normaliser_texte(texte):
+    """Retire accents, ligatures et met en minuscule."""
+    if not texte: return ""
+    texte_nfkd = unicodedata.normalize('NFKD', str(texte))
+    texte_sans_accent = "".join([c for c in texte_nfkd if unicodedata.category(c) != 'Mn'])
+    return texte_sans_accent.lower().strip()
+
+def extraire_chiffres(chaine):
+    """Garde uniquement les chiffres (enlève les tirets, espaces, +237)."""
+    if not chaine: return ""
+    return re.sub(r'\D', '', str(chaine))
+
+# --- VUE DE CONNEXION ---
+
 def connexion_etudiant(request):
     # CAS 1 : L'utilisateur envoie le formulaire (POST)
     if request.method == "POST":
         
-        # 1. PROTECTION ANTI-BRUTE FORCE
+        # 1. PROTECTION ANTI-BRUTE FORCE (Logique conservée)
         ip_client = request.META.get('REMOTE_ADDR')
         cache_key = f"login_attempts_{ip_client}"
         attempts = cache.get(cache_key, 0)
@@ -73,127 +78,82 @@ def connexion_etudiant(request):
             logger.warning(f"Blocage Brute Force IP: {ip_client}")
             return render(request, "connexion.html")
 
-        # 2. NETTOYAGE
+        # 2. RÉCUPÉRATION ET NETTOYAGE INITIAL
         matricule_input = request.POST.get("matricule", "").strip().upper()
         nom_prenom_input = request.POST.get("nom_prenom", "").strip()
         mention_input = request.POST.get("mention", "").strip()
         telephone_input = request.POST.get("telephone", "").strip()
 
-        # Vérification des champs
         if not all([matricule_input, nom_prenom_input, mention_input, telephone_input]):
             messages.error(request, "Tous les champs sont obligatoires.")
-            # On retourne le render pour garder les champs pré-remplis si besoin, 
-            # ou redirect pour nettoyer. Render est souvent mieux ici pour l'UX.
             return render(request, "connexion.html")
+
         try:
-            # 3. RECHERCHE (On nettoie le téléphone pour la recherche)
-            # On enlève les espaces du téléphone envoyé par le user pour être sûr
-            telephone_clean = telephone_input.replace(" ", "")
-
-            # On cherche d'abord par matricule uniquement (c'est l'identifiant le plus fiable)
-            # On ne filtre PAS tout de suite par téléphone pour voir si le matricule existe au moins
-            etudiant = EtudiantNiveau1.objects.filter(matricule__iexact=matricule_input).first()
-
+            # 3. RECHERCHE PAR MATRICULE (Identifiant le plus fiable)
+            etudiant = EtudiantNiveau1.objects.filter(matricule__iexact=matricule_input, actif=True).first()
             if not etudiant:
-                etudiant = EtudiantNiveau2.objects.filter(matricule__iexact=matricule_input).first()
-            
-            # DEBUG : Voir ce qu'on a trouvé
-            if not etudiant:
-                print(f"❌ AUCUN étudiant trouvé avec le matricule {matricule_input}")
-            else:
-                print(f"✅ Étudiant trouvé en DB : {etudiant.nom_prenom} | Tel DB: {etudiant.telephone}")
+                etudiant = EtudiantNiveau2.objects.filter(matricule__iexact=matricule_input, actif=True).first()
 
             if etudiant:
-                # --- VÉRIFICATION MANUELLE SOUPLE ---
+                # --- LOGIQUE DE VALIDATION ROBUSTE ---
+
+                # A. Vérification Téléphone (Gère les tirets '697-675-556' et les espaces)
+                tel_db_propre = extraire_chiffres(etudiant.telephone)
+                tel_user_propre = extraire_chiffres(telephone_input)
                 
-                # A. Vérification Téléphone (On nettoie tout avant de comparer)
-                # On enlève les espaces dans le tel de la DB et celui du user
-                db_tel = str(etudiant.telephone).replace(" ", "").strip()
-                user_tel = telephone_clean
+                # On compare les 9 derniers chiffres pour ignorer l'indicatif (+237)
+                check_tel = (tel_db_propre[-9:] == tel_user_propre[-9:])
+
+                # B. Vérification Nom (Souplesse sur l'ordre et les espaces)
+                user_nom_norm = normaliser_texte(nom_prenom_input)
+                db_nom_norm = normaliser_texte(etudiant.nom_prenom)
                 
-                if db_tel != user_tel:
-                    print(f"❌ Erreur Téléphone: DB({db_tel}) != User({user_tel})")
-                    etudiant = None # Rejet
-                
-                # B. Vérification Nom (On vérifie si les mots clés sont présents)
-                # Au lieu de l'égalité stricte, on vérifie l'inclusion
+                # On vérifie si les mots clés correspondent (évite les erreurs d'espaces doubles)
+                mots_user = set(user_nom_norm.split())
+                mots_db = set(db_nom_norm.split())
+                check_nom = (len(mots_user.intersection(mots_db)) >= 1)
+
+                # C. Vérification Mention (Normalisée)
+                check_mention = (normaliser_texte(mention_input) == normaliser_texte(etudiant.mention))
+
+                # --- VERDICT FINAL ---
+                if check_tel and check_nom:
+                    # 4. SUCCÈS : Création de la session (Logique conservée)
+                    request.session.flush() 
+                    
+                    request.session["user_id"] = etudiant.id
+                    request.session["matricule"] = etudiant.matricule
+                    request.session["nom_prenom"] = etudiant.nom_prenom
+                    request.session["mention"] = etudiant.mention
+                    request.session["parcours"] = etudiant.parcours
+                    request.session["niveau"] = str(etudiant.niveau)
+                    request.session["annee"] = etudiant.annee_academique
+                    request.session["is_logged_in"] = True 
+
+                    cache.delete(cache_key) # Reset tentatives
+                    
+                    messages.success(request, f"Bienvenue {etudiant.nom_prenom} 👋")
+                    logger.info(f"Connexion réussie : {matricule_input}")
+                    return redirect("accueil") 
                 else:
-                    db_nom = normaliser_texte(etudiant.nom_prenom)
-                    user_nom = normaliser_texte(nom_prenom_input)
-                    
-                    # On sépare les mots (ex: ["abdoul", "nassir"])
-                    db_parts = set(db_nom.split())
-                    user_parts = set(user_nom.split())
-                    
-                    # On vérifie si l'utilisateur a entré au moins une partie significative du nom
-                    # intersection() trouve les mots communs
-                    common_parts = db_parts.intersection(user_parts)
-                    
-                    if len(common_parts) == 0:
-                        print(f"❌ Erreur Nom: DB({db_nom}) vs User({user_nom}) -> Pas de mots communs")
-                        etudiant = None # Rejet
+                    # Échec de correspondance Nom ou Tel
+                    etudiant = None 
 
-                # C. Vérification Mention (OPTIONNELLE ou SOUPLE)
-                # Je conseille souvent de NE PAS bloquer sur la mention car les étudiants se trompent tout le temps
-                # Si le matricule + tel + nom sont bons, c'est bon.
-                # Si tu veux vraiment vérifier :
-                if etudiant:
-                    db_mention = normaliser_texte(etudiant.mention)
-                    user_mention = normaliser_texte(mention_input)
-                    
-                    # On vérifie si l'un est contenu dans l'autre
-                    # Ex: "GIM" dans "Génie Industriel..." (non) mais "Informatique" dans "Génie Informatique" (oui)
-                    # Pour GIM vs Génie, c'est dur à gérer sans dictionnaire de mapping.
-                    # Mieux vaut vérifier que la mention n'est pas totalement absurde, ou sauter cette étape.
-                    print(f"ℹ️ Info Mention : DB({db_mention}) vs User({user_mention})")
-                    # Je commente le blocage strict ici pour tester :
-                    # if user_mention not in db_mention and db_mention not in user_mention:
-                    #    etudiant = None 
-
-            if etudiant and etudiant.actif is False:
-                print("❌ Compte inactif")
-                messages.error(request, "Votre compte n'est pas activé.")
-                etudiant = None
-            if etudiant:
-                # 4. SUCCÈS
-                request.session.flush() # Sécurité
-                
-                request.session["user_id"] = etudiant.id
-                request.session["matricule"] = etudiant.matricule
-                request.session["nom_prenom"] = etudiant.nom_prenom
-                request.session["mention"] = etudiant.mention
-                request.session["parcours"] = etudiant.parcours
-                request.session["niveau"] = str(etudiant.niveau) # Convertir en str pour éviter soucis de comparaison
-                request.session["annee"] = etudiant.annee_academique
-                request.session["is_logged_in"] = True 
-
-                cache.delete(cache_key) # Reset tentatives
-                
-                messages.success(request, f"Bienvenue {etudiant.nom_prenom} 👋")
-                logger.info(f"Connexion réussie : {matricule_input}")
-                
-                # CORRECTION MAJEURE ICI : REDIRECT vers la vue accueil
-                # Cela permet d'exécuter la logique de la vue 'accueil'
-                return redirect("accueil") 
-
-            else:
-                # 5. ECHEC
+            if not etudiant:
+                # 5. ECHEC (Logique conservée)
                 cache.set(cache_key, attempts + 1, 300)
-                logger.warning(f"Échec connexion : {matricule_input}")
-                messages.error(request, "Informations incorrectes.")
+                logger.warning(f"Échec connexion : {matricule_input} (Infos incorrectes)")
+                messages.error(request, "Informations incorrectes (Vérifiez le nom ou le téléphone).")
                 return render(request, "connexion.html")
 
         except Exception as e:
-            logger.error(f"Erreur critique : {str(e)}")
+            logger.error(f"Erreur critique login : {str(e)}")
             messages.error(request, "Une erreur technique est survenue.")
             return render(request, "connexion.html")
 
     # CAS 2 : L'utilisateur arrive sur la page (GET)
     else:
-        # On affiche simplement la page de connexion vide
         return render(request, "connexion.html")
-    
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import EtudiantNiveau1, EtudiantNiveau2, Parrainage
