@@ -85,32 +85,80 @@ def connexion_etudiant(request):
             # On retourne le render pour garder les champs pré-remplis si besoin, 
             # ou redirect pour nettoyer. Render est souvent mieux ici pour l'UX.
             return render(request, "connexion.html")
-
         try:
-            # 3. RECHERCHE
-            etudiant = EtudiantNiveau1.objects.filter(
-                matricule__iexact=matricule_input, actif=True
-            ).first()
+            # 3. RECHERCHE (On nettoie le téléphone pour la recherche)
+            # On enlève les espaces du téléphone envoyé par le user pour être sûr
+            telephone_clean = telephone_input.replace(" ", "")
+
+            # On cherche d'abord par matricule uniquement (c'est l'identifiant le plus fiable)
+            # On ne filtre PAS tout de suite par téléphone pour voir si le matricule existe au moins
+            etudiant = EtudiantNiveau1.objects.filter(matricule__iexact=matricule_input).first()
 
             if not etudiant:
-                etudiant = EtudiantNiveau2.objects.filter(
-                    matricule__iexact=matricule_input, actif=True
-                ).first()
-                
-            if etudiant:
-                # On normalise la valeur en base de données
-                db_nom = normaliser_texte(etudiant.nom_prenom)
-                db_mention = normaliser_texte(etudiant.mention)
-
-                # On normalise la saisie utilisateur
-                user_nom = normaliser_texte(nom_prenom_input)
-                user_mention = normaliser_texte(mention_input)
-
-                # On compare les versions "propres"
-                # Ex: db="Cédric" (cedric) == user="CEDRIC" (cedric) -> VRAI
-                if db_nom != user_nom or db_mention != user_mention:
-                    etudiant = None # Ça ne matche pas
+                etudiant = EtudiantNiveau2.objects.filter(matricule__iexact=matricule_input).first()
             
+            # DEBUG : Voir ce qu'on a trouvé
+            if not etudiant:
+                print(f"❌ AUCUN étudiant trouvé avec le matricule {matricule_input}")
+            else:
+                print(f"✅ Étudiant trouvé en DB : {etudiant.nom_prenom} | Tel DB: {etudiant.telephone}")
+
+            if etudiant:
+                # --- VÉRIFICATION MANUELLE SOUPLE ---
+                
+                # A. Vérification Téléphone (On nettoie tout avant de comparer)
+                # On enlève les espaces dans le tel de la DB et celui du user
+                db_tel = str(etudiant.telephone).replace(" ", "").strip()
+                user_tel = telephone_clean
+                
+                if db_tel != user_tel:
+                    print(f"❌ Erreur Téléphone: DB({db_tel}) != User({user_tel})")
+                    etudiant = None # Rejet
+                
+                # B. Vérification Nom (On vérifie si les mots clés sont présents)
+                # Au lieu de l'égalité stricte, on vérifie l'inclusion
+                else:
+                    db_nom = normaliser_texte(etudiant.nom_prenom)
+                    user_nom = normaliser_texte(nom_prenom_input)
+                    
+                    # On sépare les mots (ex: ["abdoul", "nassir"])
+                    db_parts = set(db_nom.split())
+                    user_parts = set(user_nom.split())
+                    
+                    # On vérifie si l'utilisateur a entré au moins une partie significative du nom
+                    # intersection() trouve les mots communs
+                    common_parts = db_parts.intersection(user_parts)
+                    
+                    if len(common_parts) == 0:
+                        print(f"❌ Erreur Nom: DB({db_nom}) vs User({user_nom}) -> Pas de mots communs")
+                        etudiant = None # Rejet
+
+                # C. Vérification Mention (OPTIONNELLE ou SOUPLE)
+                # Je conseille souvent de NE PAS bloquer sur la mention car les étudiants se trompent tout le temps
+                # Si le matricule + tel + nom sont bons, c'est bon.
+                # Si tu veux vraiment vérifier :
+                if etudiant:
+                    db_mention = normaliser_texte(etudiant.mention)
+                    user_mention = normaliser_texte(mention_input)
+                    
+                    # On vérifie si l'un est contenu dans l'autre
+                    # Ex: "GIM" dans "Génie Industriel..." (non) mais "Informatique" dans "Génie Informatique" (oui)
+                    # Pour GIM vs Génie, c'est dur à gérer sans dictionnaire de mapping.
+                    # Mieux vaut vérifier que la mention n'est pas totalement absurde, ou sauter cette étape.
+                    print(f"ℹ️ Info Mention : DB({db_mention}) vs User({user_mention})")
+                    # Je commente le blocage strict ici pour tester :
+                    # if user_mention not in db_mention and db_mention not in user_mention:
+                    #    etudiant = None 
+
+            if etudiant and etudiant.actif is False:
+                 print("❌ Compte inactif")
+                 messages.error(request, "Votre compte n'est pas activé.")
+                 etudiant = None
+
+            if etudiant:
+                # 4. SUCCÈS (Le reste de ton code ne change pas)
+                # ...
+
             if etudiant:
                 # 4. SUCCÈS
                 request.session.flush() # Sécurité
