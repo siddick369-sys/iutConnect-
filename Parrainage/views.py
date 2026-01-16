@@ -151,14 +151,9 @@ def connexion_etudiant(request):
                     #    etudiant = None 
 
             if etudiant and etudiant.actif is False:
-                 print("❌ Compte inactif")
-                 messages.error(request, "Votre compte n'est pas activé.")
-                 etudiant = None
-
-            if etudiant:
-                # 4. SUCCÈS (Le reste de ton code ne change pas)
-                # ...
-
+                print("❌ Compte inactif")
+                messages.error(request, "Votre compte n'est pas activé.")
+                etudiant = None
             if etudiant:
                 # 4. SUCCÈS
                 request.session.flush() # Sécurité
