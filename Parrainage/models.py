@@ -65,7 +65,7 @@ class EtudiantNiveau2(models.Model):
 
     # ... tes champs existants ...
     # Ajout du code secret (nullable au début car ils ne l'ont pas encore créé)
-    code_secret = models.CharField(max_length=4, null=True, blank=True, help_text="Code PIN à 4 chiffres")
+    code_secret = models.CharField(max_length=128, null=True, blank=True, help_text="Code PIN à 4 chiffres")
 
     def __str__(self):
         return f"{self.nom_prenom} ({self.matricule})"
