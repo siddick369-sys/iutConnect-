@@ -256,9 +256,21 @@ import logging
 
 # On garde une trace des tentatives suspectes
 logger = logging.getLogger(__name__)
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required # Si tu utilises le login standard
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.hashers import make_password, check_password
+import logging
 
-@never_cache  # 1. Empêche le stockage dans l'historique
-@require_http_methods(["GET", "POST"])  # 2. On autorise POST pour la saisie du code PIN
+# Assure-toi que les modèles sont bien importés depuis ton fichier models.py
+from .models import EtudiantNiveau2, EtudiantNiveau1 
+
+logger = logging.getLogger(__name__)
+
+@never_cache
+@require_http_methods(["GET", "POST"])
 def voir_filleuls(request):
     """
     Affiche les filleuls UNIQUEMENT pour le parrain authentifié ET ayant déverrouillé son coffre-fort.
@@ -272,84 +284,79 @@ def voir_filleuls(request):
         messages.warning(request, "Veuillez vous identifier pour accéder à cet espace.")
         return redirect("connexion")
 
-    # --- B. CONTROLE D'ACCÈS BASÉ SUR LE RÔLE (RBAC) ---
+    # --- B. CONTROLE D'ACCÈS (Niveau 2 uniquement) ---
+    # On normalise la vérification du niveau
     if str(session_niveau) not in ["2", "2.0", "N2", "GEL 2"]:
         logger.warning(f"Tentative d'accès illégale par {session_matricule}")
         messages.error(request, "Accès refusé. Réservé aux étudiants de Niveau 2.")
         return redirect("accueil")
 
-    # --- C. RECUPERATION SECURISEE DU PARRAIN ---
+    # --- C. RECUPERATION DU PARRAIN ---
     try:
         parrain = EtudiantNiveau2.objects.get(matricule=session_matricule, actif=True)
     except EtudiantNiveau2.DoesNotExist:
         logger.error(f"Session orpheline pour matricule {session_matricule}")
         request.session.flush()
-        messages.error(request, "Votre compte n'est pas actif ou a été suspendu.")
+        messages.error(request, "Compte introuvable ou désactivé.")
         return redirect("connexion")
 
     # =========================================================================
-    # --- D. LOGIQUE DE SECURITÉ RENFORCÉE (COFFRE-FORT / 2FA) ---
+    # --- D. LOGIQUE DE SECURITÉ (COFFRE-FORT) ---
     # =========================================================================
 
-    # CAS 1 : Le parrain n'a pas encore de code secret -> On l'oblige à en créer un
+    # CAS 1 : Création du code secret
     if not parrain.code_secret:
         if request.method == "POST":
             nouveau_code = request.POST.get("nouveau_code", "").strip()
-            if len(nouveau_code) != 4:
-                messages.error(request,"le code doit avoir 4 caractere")
-                return redirect("accueil")
-                
-            # Validation simple
+            
             if len(nouveau_code) == 4 and nouveau_code.isdigit():
-                # Hachage et sauvegarde
                 parrain.code_secret = make_password(nouveau_code)
                 parrain.save()
                 
-                # On marque le coffre comme ouvert pour cette session
                 request.session['coffre_ouvert'] = True
-                messages.success(request, "Code secret configuré avec succès !")
-                return redirect("voir_filleuls") # Refresh propre
+                messages.success(request, "Sécurité activée avec succès !")
+                return redirect("voir_filleuls")
             else:
                 messages.error(request, "Le code doit comporter exactement 4 chiffres.")
+                return redirect("voir_filleuls") # On reste sur la page pour réessayer
         
-        # Affiche le template de création (à créer si tu ne l'as pas fait)
         return render(request, "creation_code.html")
 
-    # CAS 2 : Le code existe mais le coffre n'est pas ouvert en session
+    # CAS 2 : Déverrouillage
     if not request.session.get('coffre_ouvert'):
         if request.method == "POST":
             code_saisi = request.POST.get("code_secret", "").strip()
             
-            # Vérification cryptographique
             if check_password(code_saisi, parrain.code_secret):
                 request.session['coffre_ouvert'] = True
-                messages.success(request, "Identité confirmée 🔓")
-                return redirect("voir_filleuls") # Refresh pour passer en GET
+                messages.success(request, "Coffre déverrouillé 🔓")
+                return redirect("voir_filleuls")
             else:
-                # Log de sécurité pour tentative de brute force sur le PIN
-                logger.warning(f"Mauvais code PIN saisi par {session_matricule}")
+                logger.warning(f"Mauvais PIN par {session_matricule}")
                 messages.error(request, "Code incorrect ⛔")
         
-        # Affiche le template de verrouillage (celui que je t'ai donné avant)
         return render(request, "verrouillage.html")
 
     # =========================================================================
-    # --- E. ACCÈS AUX DONNÉES (Seulement si tout le reste est passé) ---
+    # --- E. ACCÈS AUX DONNÉES (CORRIGÉ) ---
     # =========================================================================
 
-    filleuls_relations = Parrainage.objects.filter(parrain=parrain).select_related("filleul")
-    
-    # On filtre pour ne garder que les filleuls actifs
-    liste_filleuls = [rel.filleul for rel in filleuls_relations if rel.filleul.actif]
+    # On utilise directement le modèle EtudiantNiveau1
+    # On suppose que EtudiantNiveau1 a un champ ForeignKey 'parrain'
+    try:
+        mes_filleuls = EtudiantNiveau1.objects.filter(parrain=parrain, actif=True)
+    except Exception as e:
+        # En cas d'erreur SQL ou de modèle mal configuré
+        logger.error(f"Erreur récupération filleuls : {e}")
+        mes_filleuls = []
 
     context = {
         "parrain": parrain,
-        "filleuls": liste_filleuls,
-        "total": len(liste_filleuls),
+        "filleuls": mes_filleuls,
+        "total": mes_filleuls.count() if hasattr(mes_filleuls, 'count') else len(mes_filleuls),
     }
     
     return render(request, "voir_filleuls.html", context)
-
 
 import threading
 from django.conf import settings
