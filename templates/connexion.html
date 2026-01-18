@@ -214,9 +214,26 @@
 
 <body>
 
+    <div id="videoLoader" class="video-loader">
+  <video id="loaderVideo" class="video-loader__video" autoplay muted  playsinline preload="auto">
+    <source src="{% static 'images/loader.mp4' %}" type="video/mp4" />
+  </video>
+</div>
+
+<div id="welcomeScreen" class="welcome-screen hidden" aria-hidden="true">
+  <div class="stars" aria-hidden="true"></div>
+
+  <div class="welcome-inner">
+    <div class="swirl-layer" aria-hidden="true"></div>
+
+    <h1 class="welcome-title">
+      <span id="typedText" class="gold-typing"></span><span class="cursor">|</span>
+    </h1>
+  </div>
+</div>
     <div class="gtranslate_wrapper"></div>
 
-
+{% comment %} 
     <!-- SPINNER -->
     <div id="spinner">
         <div class="neon-spinner">
@@ -224,7 +241,7 @@
             <div class="ring"></div>
             <div class="ring"></div>
         </div>
-    </div>
+    </div> {% endcomment %}
 
     <!-- Vidéo de fond -->
     <video autoplay muted loop playsinline class="bg-video">
@@ -536,6 +553,128 @@ function removeToast(toast) {
     });
 }
 </script>
+<script>
+  window.addEventListener("load", () => {
+    // 1. Récupération des éléments
+    const loader  = document.getElementById("videoLoader");
+    const video   = document.getElementById("loaderVideo");
+    const welcome = document.getElementById("welcomeScreen");
+    const typedEl = document.getElementById("typedText");
+    const swirlLayer = welcome ? welcome.querySelector(".swirl-layer") : null;
+
+    // --- VÉRIFICATION DU "DÉJÀ VU" ---
+    // On regarde si la "clé" existe déjà dans la mémoire du navigateur
+    if (sessionStorage.getItem("animationPlayed")) {
+        // Si OUI : On cache tout immédiatement et on active le scroll
+        if (loader) loader.style.display = "none";
+        if (welcome) welcome.style.display = "none";
+        document.body.style.overflow = ""; // Assure que le scroll est actif
+        return; // ON ARRÊTE LE SCRIPT ICI
+    }
+
+    // Si NON (c'est la première fois) :
+    // On enregistre l'info pour la prochaine fois
+    sessionStorage.setItem("animationPlayed", "true");
+
+    // ----------------------------------------------------
+    // LA SUITE EST TON CODE D'ANIMATION (Exécuté seulement si 1ère fois)
+    // ----------------------------------------------------
+
+    const LOADER_DURATION = 14000;     // vidéo 14s
+    const TEXT = "Bienvenue sur La plateforme";
+
+    const TYPE_SPEED = 45;             // ms/lettre
+    const AFTER_TYPED_WAIT = 1200;     // pause après texte écrit
+    const FADE_OUT_TIME = 800;         // doit matcher ton CSS transition
+
+    if (!loader) return;
+
+    // Bloquer scroll
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    if (video) video.play().catch(()=>{});
+
+    // --- Particules ---
+    function spawnSwirl(){
+      if (!swirlLayer) return;
+      swirlLayer.innerHTML = "";
+
+      const swirlCount = 46;
+      const sparkCount = 18;
+
+      for (let i = 0; i < swirlCount; i++){
+        const p = document.createElement("span");
+        p.className = "swirl";
+        const radius = (70 + Math.random() * 260).toFixed(0) + "px";
+        const duration = (2.4 + Math.random() * 2.8).toFixed(2) + "s";
+        const delay = (Math.random() * 1.2).toFixed(2) + "s";
+        const scale = (0.55 + Math.random() * 1.3).toFixed(2);
+        p.style.setProperty("--radius", radius);
+        p.style.setProperty("--scale", scale);
+        p.style.animationDuration = duration;
+        p.style.animationDelay = delay;
+        swirlLayer.appendChild(p);
+      }
+      for (let i = 0; i < sparkCount; i++){
+        const s = document.createElement("span");
+        s.className = "spark";
+        const radius = (60 + Math.random() * 240).toFixed(0) + "px";
+        const duration = (1.8 + Math.random() * 2.4).toFixed(2) + "s";
+        const delay = (Math.random() * 1.6).toFixed(2) + "s";
+        s.style.setProperty("--radius", radius);
+        s.style.animationDuration = duration;
+        s.style.animationDelay = delay;
+        swirlLayer.appendChild(s);
+      }
+    }
+
+    // --- Typing ---
+    function typeText(text, speed, done){
+      if(!typedEl) { done && done(); return; }
+      typedEl.textContent = "";
+      let i = 0;
+      const timer = setInterval(() => {
+        typedEl.textContent += text[i];
+        i++;
+        if (i >= text.length){
+          clearInterval(timer);
+          done && done();
+        }
+      }, speed);
+    }
+
+    // --- Enchaînement ---
+    setTimeout(() => {
+      
+      if (welcome) {
+          welcome.classList.remove("hidden");
+          welcome.classList.add("show");
+          spawnSwirl();
+      }
+
+      loader.classList.add("is-hidden");
+
+      setTimeout(() => {
+          typeText(TEXT, TYPE_SPEED, () => {
+            setTimeout(() => {
+              if(welcome) {
+                  welcome.classList.remove("show");
+                  setTimeout(() => welcome.classList.add("hidden"), FADE_OUT_TIME);
+              }
+              document.body.style.overflow = prevOverflow || "";
+            }, AFTER_TYPED_WAIT);
+          });
+      }, 300);
+
+      setTimeout(() => {
+        loader.remove();
+      }, 520);
+
+    }, LOADER_DURATION);
+  });
+</script>
+
 
 <style>
 /* --- Style du modal ALERTE (Sans Flou / Net) --- */

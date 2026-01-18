@@ -14,6 +14,24 @@
 </head>
 
 <body>
+    
+    <div id="videoLoader" class="video-loader">
+  <video id="loaderVideo" class="video-loader__video" autoplay muted  playsinline preload="auto">
+    <source src="{% static 'images/loader.mp4' %}" type="video/mp4" />
+  </video>
+</div>
+
+<div id="welcomeScreen" class="welcome-screen hidden" aria-hidden="true">
+  <div class="stars" aria-hidden="true"></div>
+
+  <div class="welcome-inner">
+    <div class="swirl-layer" aria-hidden="true"></div>
+
+    <h1 class="welcome-title">
+      <span id="typedText" class="gold-typing"></span><span class="cursor">|</span>
+    </h1>
+  </div>
+</div>
 
     <div class="liquid-bg" aria-hidden="true">
         <div class="blob b1"></div>

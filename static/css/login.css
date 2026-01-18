@@ -588,3 +588,282 @@ label {
         padding: 3px;
     }
 }
+
+
+/* Overlay loader */
+
+.video-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+
+/* Vidéo en mode cover */
+
+.video-loader__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* Effet de sortie */
+
+.video-loader.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease;
+}
+
+
+/* Texte caché mais lisible par lecteurs d’écran */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+
+/* Respect “réduire les animations” */
+
+@media (prefers-reduced-motion: reduce) {
+    .video-loader__video {
+        display: none;
+    }
+    .video-loader {
+        background: #000;
+    }
+}
+
+.video-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.video-loader__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-loader.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .45s ease;
+}
+
+
+/* --- Ecran Bienvenue --- */
+
+.welcome-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    /* Bleu nuit premium */
+    background: radial-gradient(circle at 25% 25%, rgba(25, 78, 190, .25) 0%, rgba(4, 8, 25, 0) 45%), radial-gradient(circle at 70% 40%, rgba(13, 45, 120, .22) 0%, rgba(4, 8, 25, 0) 50%), radial-gradient(circle at 40% 80%, rgba(60, 30, 120, .18) 0%, rgba(4, 8, 25, 0) 55%), linear-gradient(180deg, #060a1f 0%, #030615 60%, #01020a 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .7s ease;
+}
+
+.welcome-screen.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+.welcome-inner {
+    position: relative;
+    text-align: center;
+    padding: 24px;
+    width: min(980px, 92vw);
+}
+
+
+/* Petites étoiles (fond) */
+
+.stars {
+    position: absolute;
+    inset: -20%;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, .12) 1px, transparent 1px), radial-gradient(circle, rgba(255, 205, 120, .10) 1px, transparent 1px), radial-gradient(circle, rgba(140, 190, 255, .10) 1px, transparent 1px);
+    background-size: 120px 120px, 170px 170px, 220px 220px;
+    background-position: 0 0, 40px 60px, 80px 30px;
+    filter: blur(.2px);
+    opacity: .7;
+    animation: drift 10s linear infinite;
+}
+
+@keyframes drift {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(-80px, -60px, 0);
+    }
+}
+
+
+/* Texte doré + shine */
+
+.welcome-title {
+    margin: 0;
+    font-size: clamp(26px, 4.8vw, 58px);
+    line-height: 1.06;
+    font-weight: 900;
+    letter-spacing: .6px;
+}
+
+.gold-typing {
+    display: inline-block;
+    background: linear-gradient(90deg, #f6d77a, #ffd98f, #f1c35a, #ffe6a6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* glow */
+    text-shadow: 0 2px 18px rgba(246, 215, 122, .22), 0 0 46px rgba(246, 215, 122, .10);
+    position: relative;
+}
+
+
+/* effet “shine” qui passe */
+
+.gold-typing::after {
+    content: "";
+    position: absolute;
+    top: -20%;
+    left: -30%;
+    width: 35%;
+    height: 140%;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .32) 45%, rgba(255, 255, 255, 0) 100%);
+    transform: skewX(-18deg);
+    filter: blur(1px);
+    opacity: .0;
+    animation: shine 2.6s ease-in-out infinite;
+}
+
+@keyframes shine {
+    0%,
+    25% {
+        opacity: 0;
+        transform: translateX(-120%) skewX(-18deg);
+    }
+    35% {
+        opacity: .55;
+    }
+    60% {
+        opacity: .0;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(380%) skewX(-18deg);
+    }
+}
+
+
+/* Curseur typing */
+
+.cursor {
+    display: inline-block;
+    margin-left: 6px;
+    color: rgba(255, 225, 150, .9);
+    animation: blink 0.8s steps(1) infinite;
+    text-shadow: 0 0 18px rgba(255, 217, 120, .25);
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+
+/* --- Particules swirl --- */
+
+.swirl-layer {
+    position: absolute;
+    inset: -120px;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.swirl {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: radial-gradient(circle, #ffe6a6 0%, #f1c35a 40%, rgba(241, 195, 90, 0) 70%);
+    filter: blur(.2px);
+    opacity: .9;
+    transform: translate(-50%, -50%);
+    animation: orbit linear infinite;
+}
+
+.spark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(255, 217, 140, .95);
+    box-shadow: 0 0 14px rgba(255, 217, 140, .35);
+    opacity: .9;
+    transform: translate(-50%, -50%);
+    animation: twinkle linear infinite;
+}
+
+@keyframes orbit {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg) translateX(var(--radius)) translateY(0px) scale(var(--scale));
+        opacity: 0;
+    }
+    12% {
+        opacity: .9;
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg) translateX(var(--radius)) translateY(0px) scale(var(--scale));
+        opacity: 0;
+    }
+}
+
+@keyframes twinkle {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(0deg) translateX(var(--radius));
+    }
+    15% {
+        opacity: .9;
+    }
+    70% {
+        opacity: .2;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(360deg) translateX(var(--radius));
+    }
+}
