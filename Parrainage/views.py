@@ -266,8 +266,8 @@ import logging
 
 # Assure-toi que les modèles sont bien importés depuis ton fichier models.py
 from .models import EtudiantNiveau2, EtudiantNiveau1 
-
 logger = logging.getLogger(__name__)
+
 @never_cache  # 1. Empêche le stockage dans l'historique
 @require_http_methods(["GET", "POST"])  # 2. On autorise POST pour la saisie du code PIN
 def voir_filleuls(request):
@@ -302,31 +302,38 @@ def voir_filleuls(request):
     # --- D. LOGIQUE DE SECURITÉ RENFORCÉE (COFFRE-FORT / 2FA) ---
     # =========================================================================
 
-    # CAS 1 : Le parrain n'a pas encore de code secret -> On l'oblige à en créer un
-    if not parrain.code_secret:
-        if request.method == "POST":
-            nouveau_code = request.POST.get("nouveau_code", "").strip()
-            if len(nouveau_code) != 4:
-                messages.error(request,"le code doit avoir 4 caractere")
-                return redirect("accueil")
-                
-            # Validation simple
-            if len(nouveau_code) == 4 and nouveau_code.isdigit():
-                # Hachage et sauvegarde
-                parrain.code_secret = make_password(nouveau_code)
-                parrain.save()
-                
-                # On marque le coffre comme ouvert pour cette session
-                request.session['coffre_ouvert'] = True
-                messages.success(request, "Code secret configuré avec succès !")
-                return redirect("voir_filleuls") # Refresh propre
-            else:
-                messages.error(request, "Le code doit comporter exactement 4 chiffres.")
-        
-        # Affiche le template de création (à créer si tu ne l'as pas fait)
-        return render(request, "creation_code.html")
+    # CAS 0 : Le coffre est déjà ouvert -> On passe à la suite
+    if request.session.get('coffre_ouvert'):
+        pass
 
-    # CAS 2 : Le code existe mais le coffre n'est pas ouvert en session
+    # CAS 1 : Le parrain n'a pas encore de code secret -> Génération + Envoi Mail
+    elif not parrain.code_secret:
+        # 1. Génération code aléatoire (6 chiffres)
+        code_aleatoire = ''.join(random.choices(string.digits, k=6))
+        
+        # 2. Hachage et sauvegarde
+        parrain.code_secret = make_password(code_aleatoire)
+        parrain.save()
+        
+        # 3. Envoi par mail
+        try:
+            email_dest = parrain.email # ou parrain.email selon votre modèle
+            send_mail(
+                "Code d'accès Parrainage",
+                f"Bonjour,\n\nVotre code de sécurité personnel est : {code_aleatoire}\nNe le communiquez à personne.",
+                settings.DEFAULT_FROM_EMAIL,
+                [email_dest],
+                fail_silently=False,
+            )
+            messages.info(request, f"Premier accès : un code a été envoyé à {email_dest}.")
+            logger.info(f"Code généré et envoyé pour le parrain {session_matricule}")
+        except Exception as e:
+            logger.error(f"Erreur envoi mail pour {session_matricule}: {e}")
+            messages.error(request, "Erreur d'envoi du code. Contactez l'administrateur.")
+            
+        # Pas de return ici : on descend vers le formulaire de verrouillage (CAS 2)
+
+    # CAS 2 : Le code existe (ou vient d'être créé) mais le coffre n'est pas ouvert en session
     if not request.session.get('coffre_ouvert'):
         if request.method == "POST":
             code_saisi = request.POST.get("code_secret", "").strip()
@@ -335,14 +342,14 @@ def voir_filleuls(request):
             if check_password(code_saisi, parrain.code_secret):
                 request.session['coffre_ouvert'] = True
                 messages.success(request, "Identité confirmée 🔓")
-                return redirect("voir_filleuls") # Refresh pour passer en GET
+                return redirect("voir_filleuls") # Refresh pour passer en GET proprement
             else:
                 # Log de sécurité pour tentative de brute force sur le PIN
                 logger.warning(f"Mauvais code PIN saisi par {session_matricule}")
                 messages.error(request, "Code incorrect ⛔")
         
-        # Affiche le template de verrouillage (celui que je t'ai donné avant)
-        return render(request, "verrouillage.html")
+        # Affiche le template de verrouillage
+        return render(request, "verrouillage.html", {"titre": "Espace Parrain Verrouillé"})
 
     # =========================================================================
     # --- E. ACCÈS AUX DONNÉES (Seulement si tout le reste est passé) ---
@@ -493,7 +500,6 @@ def attribuer_parrain(request):
 
 # views.py
 from django.contrib.auth.hashers import make_password, check_password
-
 @never_cache
 def voir_parrain(request):
     # 1. Vérif Session
@@ -506,38 +512,61 @@ def voir_parrain(request):
         filleul = EtudiantNiveau1.objects.get(matricule=session_matricule, actif=True)
     except EtudiantNiveau1.DoesNotExist:
         return redirect("connexion")
-
+        
     # === COFFRE-FORT / SÉCURITÉ ===
     
-    # A. Création du code si inexistant
-    if not filleul.code_secret:
-        if request.method == "POST":
-            nouveau_code = request.POST.get("nouveau_code")
-            if len(nouveau_code) == 4 and nouveau_code.isdigit():
-                filleul.code_secret = make_password(nouveau_code)
-                filleul.save()
-                request.session['coffre_filleul_ouvert'] = True
-                messages.success(request, "Code secret créé !")
-                return redirect("voir_parrain")
-            else:
-                messages.error(request, "Le code doit faire 4 chiffres.")
-        return render(request, "creation_code.html") # Tu peux réutiliser le même template
+    # A. SI LE COFFRE EST DÉJÀ OUVERT EN SESSION
+    if request.session.get('coffre_filleul_ouvert'):
+        # On passe directement à l'affichage des données
+        pass 
 
-    # B. Vérification du code (Verrouillage)
+    # B. GÉNÉRATION AUTOMATIQUE DU CODE (Si inexistant)
+    elif not filleul.code_secret:
+        # 1. Génération d'un code à 6 chiffres (plus sécurisé pour l'email)
+        code_aleatoire = ''.join(random.choices(string.digits, k=6))
+        
+        # 2. Hachage et Sauvegarde
+        filleul.code_secret = make_password(code_aleatoire)
+        filleul.save()
+        
+        # 3. Envoi du mail
+        try:
+            # On utilise request.user.email si lié au compte User, sinon adaptez selon votre modèle
+            email_dest = request.user.email 
+            send_mail(
+                "Votre code de sécurité",
+                f"Bonjour,\nVotre code d'accès unique est : {code_aleatoire}",
+                settings.DEFAULT_FROM_EMAIL,
+                [email_dest],
+                fail_silently=False,
+            )
+            messages.info(request, f"Un code de sécurité a été généré et envoyé à {email_dest}.")
+        except Exception as e:
+            # En cas d'erreur SMTP, on loggue mais on ne plante pas l'appli
+            # (L'utilisateur devra contacter le support ou réessayer)
+            messages.error(request, "Erreur lors de l'envoi du code par mail.")
+            
+        # On ne retourne pas ici, on laisse couler vers le bloc de vérification (C) 
+        # pour afficher le formulaire de verrouillage.
+
+    # C. VÉRIFICATION DU CODE (Verrouillage)
+    # Ce bloc s'exécute si le coffre n'est pas ouvert (ou vient d'être généré)
     if not request.session.get('coffre_filleul_ouvert'):
         if request.method == "POST":
-            code_saisi = request.POST.get("code_secret")
+            code_saisi = request.POST.get("code_secret", "").strip()
+            
+            # Vérification cryptographique
             if check_password(code_saisi, filleul.code_secret):
                 request.session['coffre_filleul_ouvert'] = True
                 messages.success(request, "Accès autorisé 🔓")
-                return redirect("voir_parrain")
+                return redirect("voir_parrain") # Refresh pour éviter le renvoi du formulaire
             else:
                 messages.error(request, "Code incorrect ⛔")
         
-        # On réutilise le template de verrouillage, mais on peut passer un contexte pour changer le titre
+        # Affiche le template de verrouillage
         return render(request, "verrouillage.html", {"titre": "Accès Filleul Sécurisé"})
 
-    # === ACCÈS DONNÉES (Si coffre ouvert) ===
+    # === ACCÈS DONNÉES (Uniquement si coffre ouvert) ===
     parrainage = Parrainage.objects.filter(filleul=filleul).select_related('parrain').first()
     
     context = {

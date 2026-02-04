@@ -790,12 +790,11 @@
                 <p>Désactivation automatique du moteur Canvas sur mobile (< 768px) pour préserver la batterie, remplacé par du CSS pur.</p>
             </div>
         </div>
-
         <!-- Call to Action -->
         <div class="cta-container">
-            <a href="{% static 'docs/CV_Alexis_Stephane.pdf' %}" class="btn-3d" download>
+            {% comment %} <a href="{% static 'docs/CV_Alexis_Stephane.pdf' %}" class="btn-3d" download>
                 <i class="fas fa-download"></i> TÉLÉCHARGER MON CV
-            </a>
+            </a> {% endcomment %}
             <a href="{% url 'accueil' %}" class="btn-3d">
                 Retour sur accueil 
             </a>
