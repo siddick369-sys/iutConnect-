@@ -267,12 +267,19 @@ import logging
 # Assure-toi que les modèles sont bien importés depuis ton fichier models.py
 from .models import EtudiantNiveau2, EtudiantNiveau1 
 logger = logging.getLogger(__name__)
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import never_cache
+import logging
 
-@never_cache  # 1. Empêche le stockage dans l'historique
-@require_http_methods(["GET", "POST"])  # 2. On autorise POST pour la saisie du code PIN
+logger = logging.getLogger(__name__)
+
+@never_cache
+@require_http_methods(["GET"])  # Plus besoin de POST car il n'y a plus de formulaire de code
 def voir_filleuls(request):
     """
-    Affiche les filleuls UNIQUEMENT pour le parrain authentifié ET ayant déverrouillé son coffre-fort.
+    Affiche les filleuls directement pour le parrain authentifié (Niveau 2).
     """
     
     # --- A. VERIFICATION DE LA SESSION ---
@@ -284,80 +291,29 @@ def voir_filleuls(request):
         return redirect("connexion")
 
     # --- B. CONTROLE D'ACCÈS BASÉ SUR LE RÔLE (RBAC) ---
+    # On s'assure que c'est bien un étudiant de niveau 2
     if str(session_niveau) not in ["2", "2.0", "N2", "GEL 2"]:
         logger.warning(f"Tentative d'accès illégale par {session_matricule}")
         messages.error(request, "Accès refusé. Réservé aux étudiants de Niveau 2.")
         return redirect("accueil")
 
-    # --- C. RECUPERATION SECURISEE DU PARRAIN ---
+    # --- C. RECUPERATION DU PARRAIN ---
     try:
         parrain = EtudiantNiveau2.objects.get(matricule=session_matricule, actif=True)
     except EtudiantNiveau2.DoesNotExist:
         logger.error(f"Session orpheline pour matricule {session_matricule}")
         request.session.flush()
-        messages.error(request, "Votre compte n'est pas actif ou a été suspendu.")
+        messages.error(request, "Votre compte n'est pas actif ou introuvable.")
         return redirect("connexion")
 
     # =========================================================================
-    # --- D. LOGIQUE DE SECURITÉ RENFORCÉE (COFFRE-FORT / 2FA) ---
+    # --- ACCÈS DIRECT AUX DONNÉES ---
     # =========================================================================
 
-    # CAS 0 : Le coffre est déjà ouvert -> On passe à la suite
-    if request.session.get('coffre_ouvert'):
-        pass
-
-    # CAS 1 : Le parrain n'a pas encore de code secret -> Génération + Envoi Mail
-    elif not parrain.code_secret:
-        # 1. Génération code aléatoire (6 chiffres)
-        code_aleatoire = ''.join(random.choices(string.digits, k=6))
-        
-        # 2. Hachage et sauvegarde
-        parrain.code_secret = make_password(code_aleatoire)
-        parrain.save()
-        
-        # 3. Envoi par mail
-        try:
-            email_dest = parrain.email # ou parrain.email selon votre modèle
-            send_mail(
-                "Code d'accès Parrainage",
-                f"Bonjour,\n\nVotre code de sécurité personnel est : {code_aleatoire}\nNe le communiquez à personne.",
-                settings.DEFAULT_FROM_EMAIL,
-                [email_dest],
-                fail_silently=False,
-            )
-            messages.info(request, f"Premier accès : un code a été envoyé à {email_dest}.")
-            logger.info(f"Code généré et envoyé pour le parrain {session_matricule}")
-        except Exception as e:
-            logger.error(f"Erreur envoi mail pour {session_matricule}: {e}")
-            messages.error(request, "Erreur d'envoi du code. Contactez l'administrateur.")
-            
-        # Pas de return ici : on descend vers le formulaire de verrouillage (CAS 2)
-
-    # CAS 2 : Le code existe (ou vient d'être créé) mais le coffre n'est pas ouvert en session
-    if not request.session.get('coffre_ouvert'):
-        if request.method == "POST":
-            code_saisi = request.POST.get("code_secret", "").strip()
-            
-            # Vérification cryptographique
-            if check_password(code_saisi, parrain.code_secret):
-                request.session['coffre_ouvert'] = True
-                messages.success(request, "Identité confirmée 🔓")
-                return redirect("voir_filleuls") # Refresh pour passer en GET proprement
-            else:
-                # Log de sécurité pour tentative de brute force sur le PIN
-                logger.warning(f"Mauvais code PIN saisi par {session_matricule}")
-                messages.error(request, "Code incorrect ⛔")
-        
-        # Affiche le template de verrouillage
-        return render(request, "verrouillage.html", {"titre": "Espace Parrain Verrouillé"})
-
-    # =========================================================================
-    # --- E. ACCÈS AUX DONNÉES (Seulement si tout le reste est passé) ---
-    # =========================================================================
-
+    # Récupération des relations de parrainage
     filleuls_relations = Parrainage.objects.filter(parrain=parrain).select_related("filleul")
     
-    # On filtre pour ne garder que les filleuls actifs
+    # On filtre pour ne garder que les filleuls dont le compte est actif
     liste_filleuls = [rel.filleul for rel in filleuls_relations if rel.filleul.actif]
 
     context = {
@@ -499,80 +455,45 @@ def attribuer_parrain(request):
 
 
 # views.py
-from django.contrib.auth.hashers import make_password, check_password
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views.decorators.cache import never_cache
+from .models import EtudiantNiveau1, Parrainage # Assure-toi que les imports sont là
+
 @never_cache
 def voir_parrain(request):
-    # 1. Vérif Session
+    """
+    Affiche le parrain UNIQUEMENT pour le filleul (Niveau 1) authentifié.
+    Plus de code secret, accès direct.
+    """
+    # 1. Vérification basique de la Session
     session_matricule = request.session.get("matricule")
     if not session_matricule:
+        messages.warning(request, "Veuillez vous connecter.")
         return redirect("connexion")
 
-    # 2. Récupération Filleul
+    # 2. Récupération du Filleul (l'utilisateur connecté)
     try:
         filleul = EtudiantNiveau1.objects.get(matricule=session_matricule, actif=True)
     except EtudiantNiveau1.DoesNotExist:
+        # Si le matricule en session ne correspond à aucun étudiant actif
+        request.session.flush()
+        messages.error(request, "Compte introuvable ou inactif.")
         return redirect("connexion")
         
-    # === COFFRE-FORT / SÉCURITÉ ===
+    # =========================================================================
+    # --- ACCÈS DIRECT AUX DONNÉES ---
+    # =========================================================================
     
-    # A. SI LE COFFRE EST DÉJÀ OUVERT EN SESSION
-    if request.session.get('coffre_filleul_ouvert'):
-        # On passe directement à l'affichage des données
-        pass 
-
-    # B. GÉNÉRATION AUTOMATIQUE DU CODE (Si inexistant)
-    elif not filleul.code_secret:
-        # 1. Génération d'un code à 6 chiffres (plus sécurisé pour l'email)
-        code_aleatoire = ''.join(random.choices(string.digits, k=6))
-        
-        # 2. Hachage et Sauvegarde
-        filleul.code_secret = make_password(code_aleatoire)
-        filleul.save()
-        
-        # 3. Envoi du mail
-        try:
-            # On utilise request.user.email si lié au compte User, sinon adaptez selon votre modèle
-            email_dest = request.user.email 
-            send_mail(
-                "Votre code de sécurité",
-                f"Bonjour,\nVotre code d'accès unique est : {code_aleatoire}",
-                settings.DEFAULT_FROM_EMAIL,
-                [email_dest],
-                fail_silently=False,
-            )
-            messages.info(request, f"Un code de sécurité a été généré et envoyé à {email_dest}.")
-        except Exception as e:
-            # En cas d'erreur SMTP, on loggue mais on ne plante pas l'appli
-            # (L'utilisateur devra contacter le support ou réessayer)
-            messages.error(request, "Erreur lors de l'envoi du code par mail.")
-            
-        # On ne retourne pas ici, on laisse couler vers le bloc de vérification (C) 
-        # pour afficher le formulaire de verrouillage.
-
-    # C. VÉRIFICATION DU CODE (Verrouillage)
-    # Ce bloc s'exécute si le coffre n'est pas ouvert (ou vient d'être généré)
-    if not request.session.get('coffre_filleul_ouvert'):
-        if request.method == "POST":
-            code_saisi = request.POST.get("code_secret", "").strip()
-            
-            # Vérification cryptographique
-            if check_password(code_saisi, filleul.code_secret):
-                request.session['coffre_filleul_ouvert'] = True
-                messages.success(request, "Accès autorisé 🔓")
-                return redirect("voir_parrain") # Refresh pour éviter le renvoi du formulaire
-            else:
-                messages.error(request, "Code incorrect ⛔")
-        
-        # Affiche le template de verrouillage
-        return render(request, "verrouillage.html", {"titre": "Accès Filleul Sécurisé"})
-
-    # === ACCÈS DONNÉES (Uniquement si coffre ouvert) ===
+    # On cherche la relation de parrainage où cet étudiant est le 'filleul'
+    # .select_related('parrain') optimise la requête SQL pour récupérer les infos du parrain en même temps
     parrainage = Parrainage.objects.filter(filleul=filleul).select_related('parrain').first()
     
     context = {
         "filleul": filleul,
         "parrain": parrainage.parrain if parrainage else None
     }
+    
     return render(request, "voir_parrain.html", context)
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
