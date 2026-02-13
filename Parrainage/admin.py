@@ -92,18 +92,18 @@ def attribuer_auto_action(modeladmin, request, queryset):
             
     messages.success(request, f"{succes} parrainages créés avec succès. {echecs} échecs (manque de parrains ou déjà parrainés).")
 
-# --- ENREGISTREMENT DES CLASSES ADMIN ---
+# # --- ENREGISTREMENT DES CLASSES ADMIN ---
 
-@admin.register(EtudiantNiveau1)
-class EtudiantNiveau1Admin(admin.ModelAdmin):
-    list_display = ('nom_prenom', 'matricule', 'mention', 'parcours', 'get_parrain')
-    list_filter = ('mention', 'parcours', 'annee_academique')
-    search_fields = ('nom_prenom', 'matricule')
-    actions = [attribuer_auto_action] # Bouton dans le menu déroulant "Actions"
+# @admin.register(EtudiantNiveau1)
+# class EtudiantNiveau1Admin(admin.ModelAdmin):
+#     list_display = ('nom_prenom', 'matricule', 'mention', 'parcours', 'get_parrain')
+#     list_filter = ('mention', 'parcours', 'annee_academique')
+#     search_fields = ('nom_prenom', 'matricule')
+#     actions = [attribuer_auto_action] # Bouton dans le menu déroulant "Actions"
 
-    def get_parrain(self, obj):
-        return obj.parrainage.parrain.nom_prenom if hasattr(obj, 'parrainage') else "Aucun"
-    get_parrain.short_description = "Parrain"
+#     def get_parrain(self, obj):
+#         return obj.parrainage.parrain.nom_prenom if hasattr(obj, 'parrainage') else "Aucun"
+#     get_parrain.short_description = "Parrain"
 
 @admin.register(Parrainage)
 class ParrainageAdmin(admin.ModelAdmin):
@@ -180,10 +180,16 @@ class EtudiantNiveau2Resource(resources.ModelResource):
 @admin.register(EtudiantNiveau1)
 class EtudiantNiveau1Admin(ImportExportModelAdmin):
     resource_class = EtudiantNiveau1Resource
-    list_display = ('numero', 'nom_prenom', 'matricule', 'mention', 'parcours', 'niveau', 'annee_academique', 'actif')
+    list_display = ('numero', 'nom_prenom', 'matricule', 'mention', 'parcours', 'niveau', 'annee_academique', 'actif', 'get_parrain')
     search_fields = ('nom_prenom', 'matricule', 'mention', 'parcours')
     list_filter = ('mention', 'parcours', 'niveau', 'annee_academique', 'actif')
     ordering = ('numero',)
+    actions = [attribuer_auto_action] # Bouton dans le menu déroulant "Actions"
+
+    def get_parrain(self, obj):
+        return obj.parrainage.parrain.nom_prenom if hasattr(obj, 'parrainage') else "Aucun"
+    get_parrain.short_description = "Parrain"
+
 
 
 @admin.register(EtudiantNiveau2)
