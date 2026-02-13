@@ -7,6 +7,109 @@ from .models import EtudiantNiveau1, EtudiantNiveau2, Parrainage
 from import_export import widgets
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+import random
+from django.db.models import Count, Q
+from .models import Parrainage, EtudiantNiveau2
+
+def executer_attribution_auto(filleul):
+    """Logique d'attribution pour un seul étudiant N1"""
+    if hasattr(filleul, "parrainage"):
+        return None
+
+    # Recherche de parrains (Mention > Parcours > Année)
+    parrains = EtudiantNiveau2.objects.filter(mention__iexact=filleul.mention, actif=True)
+    
+    parrains_parcours = parrains.filter(parcours__iexact=filleul.parcours)
+    if parrains_parcours.exists():
+        parrains = parrains_parcours
+
+    if not parrains.exists():
+        return None
+
+    # Répartition équitable
+    # On compte combien de filleuls chaque parrain a ACTUELLEMENT
+    parrains = parrains.annotate(nb_filleuls=Count('filleuls'))
+    min_filleuls = parrains.order_by('nb_filleuls').first().nb_filleuls
+    
+    parrains_eligibles = parrains.filter(nb_filleuls=min_filleuls)
+    parrain_choisi = random.choice(list(parrains_eligibles))
+
+    return Parrainage.objects.create(parrain=parrain_choisi, filleul=filleul)
+
+
+import openpyxl
+from django.contrib import admin, messages
+from django.http import HttpResponse
+from .models import EtudiantNiveau1, EtudiantNiveau2, Parrainage
+from django.utils import timezone
+
+# --- ACTION EXPORT EXCEL ---
+@admin.action(description="Exporter la liste en Excel")
+def export_parrainages_excel(modeladmin, request, queryset):
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=Parrainages_{timezone.now().strftime("%Y-%m-%d")}.xlsx'
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Liste des Parrainages"
+
+    # En-têtes
+    headers = [
+        'Nom Filleul (N1)', 'Matricule Filleul', 'Parcours Filleul',
+        'Nom Parrain (N2)', 'Matricule Parrain', 'Parcours Parrain',
+        'Date d\'attribution'
+    ]
+    ws.append(headers)
+
+    # Données
+    for p in queryset.select_related('filleul', 'parrain'):
+        ws.append([
+            p.filleul.nom_prenom, p.filleul.matricule, p.filleul.parcours,
+            p.parrain.nom_prenom if p.parrain else "N/A",
+            p.parrain.matricule if p.parrain else "N/A",
+            p.parrain.parcours if p.parrain else "N/A",
+            p.date_attribution.strftime("%d/%m/%Y %H:%M")
+        ])
+
+    wb.save(response)
+    return response
+
+# --- ACTION ATTRIBUTION AUTO ---
+@admin.action(description="Attribuer parrains aux N1 sélectionnés")
+def attribuer_auto_action(modeladmin, request, queryset):
+    succes = 0
+    echecs = 0
+    
+    for etudiant in queryset:
+        try:
+            result = executer_attribution_auto(etudiant)
+            if result:
+                succes += 1
+            else:
+                echecs += 1
+        except Exception:
+            echecs += 1
+            
+    messages.success(request, f"{succes} parrainages créés avec succès. {echecs} échecs (manque de parrains ou déjà parrainés).")
+
+# --- ENREGISTREMENT DES CLASSES ADMIN ---
+
+@admin.register(EtudiantNiveau1)
+class EtudiantNiveau1Admin(admin.ModelAdmin):
+    list_display = ('nom_prenom', 'matricule', 'mention', 'parcours', 'get_parrain')
+    list_filter = ('mention', 'parcours', 'annee_academique')
+    search_fields = ('nom_prenom', 'matricule')
+    actions = [attribuer_auto_action] # Bouton dans le menu déroulant "Actions"
+
+    def get_parrain(self, obj):
+        return obj.parrainage.parrain.nom_prenom if hasattr(obj, 'parrainage') else "Aucun"
+    get_parrain.short_description = "Parrain"
+
+@admin.register(Parrainage)
+class ParrainageAdmin(admin.ModelAdmin):
+    list_display = ('filleul', 'parrain', 'date_attribution', 'actif')
+    list_filter = ('filleul__mention', 'filleul__parcours', 'actif')
+    actions = [export_parrainages_excel] # Bouton d'export
 
 class EmailWidget(widgets.CharWidget):
     """Widget personnalisé pour valider les adresses e-mail."""
@@ -92,14 +195,6 @@ class EtudiantNiveau2Admin(ImportExportModelAdmin):
     ordering = ('numero',)
 
 
-@admin.register(Parrainage)
-class ParrainageAdmin(admin.ModelAdmin):
-    list_display = ('filleul', 'parrain', 'date_attribution', 'actif')
-    list_filter = ('actif', 'date_attribution')
-    search_fields = ('filleul__nom_prenom', 'parrain__nom_prenom')
-    
-    
-    
     
 from django.contrib import admin
 from django.utils.html import format_html
