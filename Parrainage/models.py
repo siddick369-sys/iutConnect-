@@ -56,7 +56,7 @@ class EtudiantNiveau2(models.Model):
     nom_prenom = models.CharField(max_length=100)
     matricule = models.CharField(max_length=50, unique=False)
     email = models.EmailField(unique=False,null=True,blank=True)
-    telephone = models.CharField(max_length=9, validators=[telephone_validator], blank=True,null=True)
+    telephone = models.CharField(max_length=30, validators=[telephone_validator], blank=True,null=True)
     mention = models.CharField(max_length=40,)
     parcours = models.CharField(max_length=20,)
     niveau = models.CharField(max_length=10, default='N2')
