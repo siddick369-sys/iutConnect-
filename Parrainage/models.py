@@ -31,7 +31,7 @@ ANNEES = [
 
 # --- TABLE DES ÉTUDIANTS NIVEAU 1 ---
 class EtudiantNiveau1(models.Model):
-    numero = models.IntegerField(null=True,blank=True)  # <-- Importé depuis l’annuaire, pas auto-généré
+    numero = models.CharField(null=True,blank=True)  # <-- Importé depuis l’annuaire, pas auto-généré
     nom_prenom = models.CharField(max_length=100)
     matricule = models.CharField(max_length=51, unique=False)
     email = models.EmailField(unique=False,null=True,blank=True)
